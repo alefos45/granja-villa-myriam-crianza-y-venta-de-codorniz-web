@@ -1,159 +1,155 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Granja Villa Myriam · Crianza de Codornices</title>
-  <link rel="icon" type="image/svg+xml" href="logo.svg">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,600&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Granja Villa Myriam · Crianza</title>
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,600&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <style>
-    /* ========== ESTILOS RENOVADOS ========== */
-    :root {
-      --c-bg: #f7f2e8;
-      --c-paper: #fdfaf3;
-      --c-cream: #fff8ec;
-      --c-amber: #b8712a;
-      --c-amber2: #d4903f;
-      --c-amber3: #e8b870;
-      --c-pale: #f2ddb5;
-      --c-brown: #4a2c0e;
-      --c-brown2: #7a4a20;
-      --c-brown3: #a06c3a;
-      --c-green: #3b6b3b;
-      --c-red: #9b2a1a;
-      --c-blue: #2c7da0;
-      --c-muted: #8a6840;
-      --c-border: #d9c49a;
-      --c-shadow: rgba(74,44,14,0.12);
-      --r: 1.1rem;
-      --r-sm: 0.65rem;
-      --font-head: 'Playfair Display', Georgia, serif;
-      --font-body: 'Crimson Pro', Georgia, serif;
-      --font-mono: 'DM Mono', monospace;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: var(--font-body);
-      font-size: 1.05rem;
-      color: var(--c-brown);
-      background: var(--c-bg);
-      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='0.6' fill='%23b8712a' opacity='0.07'/%3E%3C/svg%3E");
-      min-height: 100vh;
-    }
-    h1,h2,h3,h4,h5 { font-family: var(--font-head); }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: var(--c-bg); }
-    ::-webkit-scrollbar-thumb { background: var(--c-pale); border-radius: 3px; }
-    .page { min-height: 100vh; display: flex; flex-direction: column; }
-    #authPage { background: linear-gradient(160deg, #1c0f05 0%, #3a1e06 45%, #6b3c14 100%); position: relative; overflow: hidden; }
-    #authPage::before { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='40' cy='40' r='1' fill='%23e8b870' opacity='0.15'/%3E%3C/svg%3E"); pointer-events: none; }
-    #adminPage { display: none; flex-direction: column; }
-    #adminPage.active { display: flex; }
-    .auth-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1rem; gap: 2rem; }
-    .auth-brand { text-align: center; color: var(--c-pale); }
-    .auth-brand img { width: 80px; height: 80px; object-fit: cover; border-radius: 50%; display: block; margin: 0 auto 0.5rem; animation: float 3s ease-in-out infinite; }
-    .auth-brand h1 { font-size: 1.8rem; font-style: italic; color: var(--c-amber3); }
-    .auth-brand p { font-size: 1rem; opacity: 0.75; margin-top: 0.2rem; }
-    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-    .auth-card { background: var(--c-paper); border-radius: 1.5rem; padding: 2.5rem 2rem; width: 100%; max-width: 500px; box-shadow: 0 30px 80px rgba(0,0,0,0.5); border: 1px solid rgba(232,184,112,0.2); }
-    .auth-tabs { display: flex; gap: 0.25rem; background: var(--c-bg); border-radius: 3rem; padding: 0.2rem; margin-bottom: 2rem; }
-    .auth-tab { flex: 1; border: none; background: none; padding: 0.6rem 1rem; border-radius: 2.5rem; font-family: var(--font-body); font-size: 1rem; font-weight: 600; cursor: pointer; color: var(--c-muted); transition: all .2s; }
-    .auth-tab.active { background: var(--c-amber); color: white; box-shadow: 0 2px 12px rgba(184,113,42,0.35); }
-    .form-row { display: grid; gap: 0.85rem; margin-bottom: 0.85rem; }
-    .form-row.c2 { grid-template-columns: 1fr 1fr; }
-    .form-row.c3 { grid-template-columns: 1fr 1fr 1fr; }
-    .fg { display: flex; flex-direction: column; gap: 0.3rem; }
-    .fg label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--c-brown3); }
-    .fg input, .fg select, .fg textarea { padding: 0.65rem 0.9rem; border: 1.5px solid var(--c-border); border-radius: var(--r-sm); font-family: var(--font-body); font-size: 1rem; background: white; color: var(--c-brown); transition: border-color .2s, box-shadow .2s; outline: none; width: 100%; }
-    .fg input:focus, .fg select:focus, .fg textarea:focus { border-color: var(--c-amber2); box-shadow: 0 0 0 3px rgba(184,113,42,0.12); }
-    .fg textarea { resize: vertical; min-height: 80px; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; padding: 0.65rem 1.4rem; border: none; border-radius: 3rem; font-family: var(--font-body); font-size: 1rem; font-weight: 600; cursor: pointer; transition: all .2s; white-space: nowrap; }
-    .btn:disabled { opacity: .5; cursor: not-allowed; }
-    .btn-primary { background: var(--c-amber); color: white; }
-    .btn-primary:hover:not(:disabled) { background: var(--c-brown2); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(184,113,42,0.4); }
-    .btn-success { background: var(--c-green); color: white; }
-    .btn-success:hover:not(:disabled) { background: #2d5430; transform: translateY(-1px); }
-    .btn-danger { background: var(--c-red); color: white; }
-    .btn-danger:hover:not(:disabled) { background: #7a1f10; }
-    .btn-info { background: var(--c-blue); color: white; }
-    .btn-info:hover:not(:disabled) { background: #1f5e7a; }
-    .btn-ghost { background: var(--c-pale); color: var(--c-brown2); }
-    .btn-ghost:hover:not(:disabled) { background: var(--c-border); }
-    .btn-outline { background: transparent; border: 1.5px solid var(--c-amber); color: var(--c-amber); }
-    .btn-outline:hover:not(:disabled) { background: var(--c-amber); color: white; }
-    .btn-block { width: 100%; }
-    .btn-sm { padding: 0.35rem 0.85rem; font-size: 0.85rem; }
-    .btn-xs { padding: 0.22rem 0.6rem; font-size: 0.78rem; }
-    .alert { padding: 0.6rem 1rem; border-radius: var(--r-sm); font-size: 0.92rem; margin-top: 0.5rem; }
-    .alert-error   { background: #fdf0ee; color: var(--c-red); border: 1px solid #f5c6c1; }
-    .alert-success { background: #edf7ed; color: var(--c-green); border: 1px solid #b7dbb7; }
-    .alert-info    { background: #fef8ee; color: var(--c-amber); border: 1px solid var(--c-pale); }
-    .alert-warn    { background: #fff8e1; color: #7a5600; border: 1px solid #ffd54f; }
-    .topbar { background: var(--c-paper); border-bottom: 1.5px solid var(--c-border); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 20px var(--c-shadow); }
-    .topbar-inner { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1.5rem; flex-wrap: wrap; gap: 0.75rem; }
-    .topbar-brand { display: flex; align-items: center; gap: 0.75rem; }
-    .topbar-logo { width: 44px; height: 44px; border-radius: 50%; background: var(--c-pale); border: 2px solid var(--c-amber); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; overflow: hidden; cursor: pointer; }
-    .topbar-title { font-family: var(--font-head); font-size: 1.1rem; font-style: italic; color: var(--c-brown); }
-    .topbar-sub { font-size: 0.75rem; color: var(--c-muted); text-transform: capitalize; }
-    .topbar-actions { display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap; }
-    .tab-nav { background: var(--c-paper); border-bottom: 1.5px solid var(--c-border); overflow-x: auto; scrollbar-width: none; }
-    .tab-nav::-webkit-scrollbar { display: none; }
-    .tab-nav-inner { display: flex; padding: 0 1.25rem; min-width: max-content; }
-    .tab-btn { background: none; border: none; border-bottom: 2.5px solid transparent; padding: 0.8rem 1.1rem; font-family: var(--font-body); font-size: 1rem; font-weight: 600; color: var(--c-muted); cursor: pointer; transition: all .2s; white-space: nowrap; }
-    .tab-btn.active { color: var(--c-amber); border-bottom-color: var(--c-amber); }
-    .tab-btn:hover:not(.active) { color: var(--c-brown2); }
-    .main { flex: 1; padding: 1.5rem; max-width: 1200px; margin: 0 auto; width: 100%; }
-    .panel { display: none; }
-    .panel.active { display: block; }
-    .card { background: var(--c-paper); border-radius: var(--r); border: 1.5px solid var(--c-border); padding: 1.5rem; box-shadow: 0 2px 20px var(--c-shadow); margin-bottom: 1.25rem; }
-    .card-title { font-family: var(--font-head); font-size: 1.15rem; font-weight: 700; color: var(--c-brown); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px dashed var(--c-border); padding-bottom: 0.6rem; flex-wrap: wrap; }
-    .card-title small { font-family: var(--font-body); font-weight: 400; font-size: 0.85rem; color: var(--c-muted); margin-left: auto; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
-    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
-    .stat-card { background: var(--c-cream); border: 1.5px solid var(--c-border); border-radius: var(--r-sm); padding: 1rem; text-align: center; transition: transform 0.2s; }
-    .stat-card:hover { transform: translateY(-2px); }
-    .stat-val { font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; color: var(--c-amber); }
-    .stat-label { font-size: 0.8rem; color: var(--c-muted); margin-top: 0.2rem; }
-    .data-table-wrap { overflow-x: auto; }
-    .data-table { width: 100%; border-collapse: collapse; min-width: 520px; }
-    .data-table th { background: var(--c-pale); padding: 0.55rem 0.7rem; text-align: left; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--c-brown2); white-space: nowrap; }
-    .data-table td { padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--c-border); font-size: 0.92rem; vertical-align: middle; }
-    .data-table tr:last-child td { border-bottom: none; }
-    .data-table tr:hover td { background: var(--c-cream); }
-    .data-table input, .data-table select { padding: 0.3rem 0.5rem; border: 1.5px solid var(--c-border); border-radius: var(--r-sm); font-family: var(--font-body); font-size: 0.9rem; background: white; width: 100%; }
-    .modal-overlay { position: fixed; inset: 0; background: rgba(26,13,3,0.76); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
-    .modal-box { background: var(--c-paper); border-radius: var(--r); padding: 2rem; max-width: 580px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 40px 100px rgba(0,0,0,0.5); border: 1.5px solid var(--c-border); }
-    .modal-title { font-family: var(--font-head); font-size: 1.3rem; font-style: italic; color: var(--c-brown); margin-bottom: 1.25rem; border-bottom: 1px dashed var(--c-border); padding-bottom: 0.75rem; }
-    .modal-actions { display: flex; gap: 0.6rem; margin-top: 1.25rem; flex-wrap: wrap; }
-    .hidden { display: none !important; }
-    .app-footer { background: var(--c-paper); border-top: 1.5px solid var(--c-border); padding: 0.7rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
-    .footer-copy { font-size: 0.78rem; color: var(--c-muted); font-style: italic; }
-    .footer-links { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-    .loader { display: flex; align-items: center; justify-content: center; padding: 3rem; }
-    .loader::after { content: ''; width: 36px; height: 36px; border: 3px solid var(--c-pale); border-top-color: var(--c-amber); border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .chip { padding: 0.28rem 0.75rem; border-radius: 2rem; border: 1.5px solid var(--c-border); background: white; font-family: var(--font-body); font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
-    .chip.active { background: var(--c-amber); border-color: var(--c-amber); color: white; }
-    .mt-1 { margin-top: 0.5rem; }
-    .mt-2 { margin-top: 1rem; }
-    .badge-admin { background: var(--c-amber); color: white; padding: 0.2rem 0.8rem; border-radius: 2rem; font-size: 0.75rem; font-weight: 600; }
-    .order-card { background: var(--c-cream); border-radius: var(--r-sm); padding: 0.8rem 1rem; margin-bottom: 0.5rem; border-left: 4px solid var(--c-amber3); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
-    .order-card .date { font-size: 0.8rem; color: var(--c-muted); }
-    .cart-empty { padding: 2rem; text-align: center; color: var(--c-muted); font-style: italic; }
-    @media(max-width:768px) {
-      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
-      .form-row.c2, .form-row.c3 { grid-template-columns: 1fr; }
-      .auth-card { padding: 1.75rem 1.25rem; }
-      .main { padding: 1rem; }
-      .topbar-inner { padding: 0.6rem 1rem; }
-    }
-  </style>
+<style>
+/* ========== ESTILOS (idénticos a la versión anterior) ========== */
+:root {
+  --c-bg:       #f7f2e8;
+  --c-paper:    #fdfaf3;
+  --c-cream:    #fff8ec;
+  --c-amber:    #b8712a;
+  --c-amber2:   #d4903f;
+  --c-amber3:   #e8b870;
+  --c-pale:     #f2ddb5;
+  --c-brown:    #4a2c0e;
+  --c-brown2:   #7a4a20;
+  --c-brown3:   #a06c3a;
+  --c-green:    #3b6b3b;
+  --c-red:      #9b2a1a;
+  --c-blue:     #2c7da0;
+  --c-muted:    #8a6840;
+  --c-border:   #d9c49a;
+  --c-shadow:   rgba(74,44,14,0.12);
+  --r:          1.1rem;
+  --r-sm:       0.65rem;
+  --font-head:  'Playfair Display', Georgia, serif;
+  --font-body:  'Crimson Pro', Georgia, serif;
+  --font-mono:  'DM Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  color: var(--c-brown);
+  background: var(--c-bg);
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='0.6' fill='%23b8712a' opacity='0.07'/%3E%3C/svg%3E");
+  min-height: 100vh;
+}
+h1,h2,h3,h4,h5 { font-family: var(--font-head); }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--c-bg); }
+::-webkit-scrollbar-thumb { background: var(--c-pale); border-radius: 3px; }
+.page { min-height: 100vh; display: flex; flex-direction: column; }
+#authPage { background: linear-gradient(160deg, #1c0f05 0%, #3a1e06 45%, #6b3c14 100%); position: relative; overflow: hidden; }
+#authPage::before { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='40' cy='40' r='1' fill='%23e8b870' opacity='0.15'/%3E%3C/svg%3E"); pointer-events: none; }
+#adminPage { display: none; flex-direction: column; }
+#adminPage.active { display: flex; }
+.auth-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1rem; gap: 2rem; }
+.auth-brand { text-align: center; color: var(--c-pale); }
+.auth-brand img { width: 80px; height: 80px; object-fit: cover; border-radius: 50%; display: block; margin: 0 auto 0.5rem; animation: float 3s ease-in-out infinite; }
+.auth-brand h1 { font-size: 1.8rem; font-style: italic; color: var(--c-amber3); }
+.auth-brand p { font-size: 1rem; opacity: 0.75; margin-top: 0.2rem; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.auth-card { background: var(--c-paper); border-radius: 1.5rem; padding: 2.5rem 2rem; width: 100%; max-width: 500px; box-shadow: 0 30px 80px rgba(0,0,0,0.5); border: 1px solid rgba(232,184,112,0.2); }
+.auth-tabs { display: flex; gap: 0.25rem; background: var(--c-bg); border-radius: 3rem; padding: 0.2rem; margin-bottom: 2rem; }
+.auth-tab { flex: 1; border: none; background: none; padding: 0.6rem 1rem; border-radius: 2.5rem; font-family: var(--font-body); font-size: 1rem; font-weight: 600; cursor: pointer; color: var(--c-muted); transition: all .2s; }
+.auth-tab.active { background: var(--c-amber); color: white; box-shadow: 0 2px 12px rgba(184,113,42,0.35); }
+.form-row { display: grid; gap: 0.85rem; margin-bottom: 0.85rem; }
+.form-row.c2 { grid-template-columns: 1fr 1fr; }
+.fg { display: flex; flex-direction: column; gap: 0.3rem; }
+.fg label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--c-brown3); }
+.fg input, .fg select, .fg textarea { padding: 0.65rem 0.9rem; border: 1.5px solid var(--c-border); border-radius: var(--r-sm); font-family: var(--font-body); font-size: 1rem; background: white; color: var(--c-brown); transition: border-color .2s, box-shadow .2s; outline: none; width: 100%; }
+.fg input:focus, .fg select:focus, .fg textarea:focus { border-color: var(--c-amber2); box-shadow: 0 0 0 3px rgba(184,113,42,0.12); }
+.fg textarea { resize: vertical; min-height: 80px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; padding: 0.65rem 1.4rem; border: none; border-radius: 3rem; font-family: var(--font-body); font-size: 1rem; font-weight: 600; cursor: pointer; transition: all .2s; white-space: nowrap; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-primary { background: var(--c-amber); color: white; }
+.btn-primary:hover:not(:disabled) { background: var(--c-brown2); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(184,113,42,0.4); }
+.btn-success { background: var(--c-green); color: white; }
+.btn-success:hover:not(:disabled) { background: #2d5430; transform: translateY(-1px); }
+.btn-danger { background: var(--c-red); color: white; }
+.btn-danger:hover:not(:disabled) { background: #7a1f10; }
+.btn-info { background: var(--c-blue); color: white; }
+.btn-info:hover:not(:disabled) { background: #1f5e7a; }
+.btn-ghost { background: var(--c-pale); color: var(--c-brown2); }
+.btn-ghost:hover:not(:disabled) { background: var(--c-border); }
+.btn-outline { background: transparent; border: 1.5px solid var(--c-amber); color: var(--c-amber); }
+.btn-outline:hover:not(:disabled) { background: var(--c-amber); color: white; }
+.btn-block { width: 100%; }
+.btn-sm { padding: 0.35rem 0.85rem; font-size: 0.85rem; }
+.btn-xs { padding: 0.22rem 0.6rem; font-size: 0.78rem; }
+.alert { padding: 0.6rem 1rem; border-radius: var(--r-sm); font-size: 0.92rem; margin-top: 0.5rem; }
+.alert-error   { background: #fdf0ee; color: var(--c-red); border: 1px solid #f5c6c1; }
+.alert-success { background: #edf7ed; color: var(--c-green); border: 1px solid #b7dbb7; }
+.alert-info    { background: #fef8ee; color: var(--c-amber); border: 1px solid var(--c-pale); }
+.alert-warn    { background: #fff8e1; color: #7a5600; border: 1px solid #ffd54f; }
+.topbar { background: var(--c-paper); border-bottom: 1.5px solid var(--c-border); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 20px var(--c-shadow); }
+.topbar-inner { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1.5rem; flex-wrap: wrap; gap: 0.75rem; }
+.topbar-brand { display: flex; align-items: center; gap: 0.75rem; }
+.topbar-logo { width: 44px; height: 44px; border-radius: 50%; background: var(--c-pale); border: 2px solid var(--c-amber); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; overflow: hidden; cursor: pointer; }
+.topbar-title { font-family: var(--font-head); font-size: 1.1rem; font-style: italic; color: var(--c-brown); }
+.topbar-sub { font-size: 0.75rem; color: var(--c-muted); text-transform: capitalize; }
+.topbar-actions { display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap; }
+.tab-nav { background: var(--c-paper); border-bottom: 1.5px solid var(--c-border); overflow-x: auto; scrollbar-width: none; }
+.tab-nav::-webkit-scrollbar { display: none; }
+.tab-nav-inner { display: flex; padding: 0 1.25rem; min-width: max-content; }
+.tab-btn { background: none; border: none; border-bottom: 2.5px solid transparent; padding: 0.8rem 1.1rem; font-family: var(--font-body); font-size: 1rem; font-weight: 600; color: var(--c-muted); cursor: pointer; transition: all .2s; white-space: nowrap; }
+.tab-btn.active { color: var(--c-amber); border-bottom-color: var(--c-amber); }
+.tab-btn:hover:not(.active) { color: var(--c-brown2); }
+.main { flex: 1; padding: 1.5rem; max-width: 1200px; margin: 0 auto; width: 100%; }
+.panel { display: none; }
+.panel.active { display: block; }
+.card { background: var(--c-paper); border-radius: var(--r); border: 1.5px solid var(--c-border); padding: 1.5rem; box-shadow: 0 2px 20px var(--c-shadow); margin-bottom: 1.25rem; }
+.card-title { font-family: var(--font-head); font-size: 1.15rem; font-weight: 700; color: var(--c-brown); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px dashed var(--c-border); padding-bottom: 0.6rem; flex-wrap: wrap; }
+.card-title small { font-family: var(--font-body); font-weight: 400; font-size: 0.85rem; color: var(--c-muted); margin-left: auto; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.stat-card { background: var(--c-cream); border: 1.5px solid var(--c-border); border-radius: var(--r-sm); padding: 1rem; text-align: center; transition: transform 0.2s; }
+.stat-card:hover { transform: translateY(-2px); }
+.stat-val { font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; color: var(--c-amber); }
+.stat-label { font-size: 0.8rem; color: var(--c-muted); margin-top: 0.2rem; }
+.data-table-wrap { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; min-width: 520px; }
+.data-table th { background: var(--c-pale); padding: 0.55rem 0.7rem; text-align: left; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--c-brown2); white-space: nowrap; }
+.data-table td { padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--c-border); font-size: 0.92rem; vertical-align: middle; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--c-cream); }
+.data-table input, .data-table select { padding: 0.3rem 0.5rem; border: 1.5px solid var(--c-border); border-radius: var(--r-sm); font-family: var(--font-body); font-size: 0.9rem; background: white; width: 100%; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(26,13,3,0.76); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+.modal-box { background: var(--c-paper); border-radius: var(--r); padding: 2rem; max-width: 580px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 40px 100px rgba(0,0,0,0.5); border: 1.5px solid var(--c-border); }
+.modal-title { font-family: var(--font-head); font-size: 1.3rem; font-style: italic; color: var(--c-brown); margin-bottom: 1.25rem; border-bottom: 1px dashed var(--c-border); padding-bottom: 0.75rem; }
+.modal-actions { display: flex; gap: 0.6rem; margin-top: 1.25rem; flex-wrap: wrap; }
+.hidden { display: none !important; }
+.app-footer { background: var(--c-paper); border-top: 1.5px solid var(--c-border); padding: 0.7rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+.footer-copy { font-size: 0.78rem; color: var(--c-muted); font-style: italic; }
+.footer-links { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.loader { display: flex; align-items: center; justify-content: center; padding: 3rem; }
+.loader::after { content: ''; width: 36px; height: 36px; border: 3px solid var(--c-pale); border-top-color: var(--c-amber); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.chip { padding: 0.28rem 0.75rem; border-radius: 2rem; border: 1.5px solid var(--c-border); background: white; font-family: var(--font-body); font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+.chip.active { background: var(--c-amber); border-color: var(--c-amber); color: white; }
+.notification-banner { background: #fff3cd; border-left: 6px solid #ffc107; padding: 0.75rem 1rem; margin-bottom: 1rem; border-radius: var(--r-sm); display: flex; align-items: center; gap: 0.75rem; font-weight: 600; color: #856404; }
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+@media(max-width:768px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .form-row.c2 { grid-template-columns: 1fr; }
+  .auth-card { padding: 1.75rem 1.25rem; }
+  .main { padding: 1rem; }
+  .topbar-inner { padding: 0.6rem 1rem; }
+}
+</style>
 </head>
 <body>
 
@@ -164,7 +160,7 @@
       <img src="logo.svg" alt="Logo Granja Villa Myriam" id="authLogoImg" style="display:none;">
       <span id="authLogoFallback" style="display:block;">&#x1F95A;</span>
       <h1>Granja Villa Myriam · Crianza</h1>
-      <p>Gestión de producción avícola con precios de mercado</p>
+      <p>Gestión de producción avícola</p>
     </div>
     <div class="auth-card">
       <div class="auth-tabs">
@@ -184,27 +180,15 @@
       </div>
       <div id="registerPanel" class="hidden">
         <div class="form-row">
-          <div class="fg"><label>Tipo de usuario</label>
-            <select id="regTipo">
-              <option value="natural">Persona Natural</option>
-              <option value="negocio">Negocio</option>
-              <option value="empresa">Empresa</option>
-              <option value="encargado">Encargado de granja</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-row c2">
           <div class="fg"><label>Nombre completo *</label><input type="text" id="regNombre" placeholder="Juan Pérez"></div>
-          <div class="fg"><label>Documento (CC/NIT)</label><input type="text" id="regDocumento"></div>
         </div>
         <div class="form-row c2">
-          <div class="fg"><label>Teléfono</label><input type="tel" id="regTelefono"></div>
-          <div class="fg"><label>WhatsApp</label><input type="tel" id="regWhatsapp"></div>
+          <div class="fg"><label>Cédula / Documento *</label><input type="text" id="regDocumento" placeholder="1234567890"></div>
+          <div class="fg"><label>Edad *</label><input type="number" id="regEdad" placeholder="30" min="18"></div>
         </div>
         <div class="form-row">
-          <div class="fg"><label>Correo electrónico *</label><input type="email" id="regEmail" autocomplete="email"></div>
-          <div class="fg"><label>Dirección</label><input type="text" id="regDireccion" placeholder="Ciudad, barrio, calle..."></div>
-          <div class="fg"><label>Contraseña * (min. 6 car.)</label><input type="password" id="regPassword" autocomplete="new-password"></div>
+          <div class="fg"><label>Correo electrónico *</label><input type="email" id="regEmail" autocomplete="email" placeholder="correo@ejemplo.com"></div>
+          <div class="fg"><label>Contraseña * (min. 6 car.)</label><input type="password" id="regPassword" autocomplete="new-password" placeholder="••••••••"></div>
         </div>
         <div id="registerErr"></div>
         <button class="btn btn-primary btn-block mt-1" id="registerBtn">Crear cuenta</button>
@@ -226,7 +210,7 @@
         </div>
       </div>
       <div class="topbar-actions">
-        <span class="badge-admin"><i class="fas fa-shield-alt"></i> Admin</span>
+        <span class="badge badge-admin"><i class="fas fa-shield-alt"></i> Admin</span>
         <span id="adminWelcome" style="font-style:italic"></span>
         <button class="btn btn-ghost btn-sm" id="adminLogout"><i class="fas fa-sign-out-alt"></i> Salir</button>
       </div>
@@ -268,7 +252,7 @@
   <div class="modal-box">
     <div class="modal-title">Nueva contraseña</div>
     <div class="form-row">
-      <div class="fg"><label>Nueva contraseña (min. 6 caracteres)</label><input type="password" id="newPassword" placeholder="••••••••"></div>
+      <div class="fg"><label>Nueva contraseña (min. 6 car.)</label><input type="password" id="newPassword" placeholder="••••••••"></div>
       <div class="fg"><label>Confirmar contraseña</label><input type="password" id="confirmPassword" placeholder="••••••••"></div>
     </div>
     <div id="newPassMsg"></div>
@@ -283,10 +267,11 @@
 
 <script>
 // ============================================================
-//  CONFIGURACIÓN SUPABASE
+//  CONFIGURACIÓN SUPABASE (¡cambia por tus credenciales!)
 // ============================================================
 const SUPABASE_URL      = "https://dfzkhlclwdxrkokzbtra.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_9dkfwX7NGWw19ChZwMVF2A_cgQsdi8l";
+const SUPABASE_ANON_KEY = "TU_ANON_KEY_AQUI"; // <-- Cambia por tu anon key
+
 window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ============================================================
@@ -303,8 +288,6 @@ let G = {
   sanitarios: [],
   costos: [],
   inventarioAlimento: [],
-  insumos: [],           // Nuevo: lista de insumos (codorniz, alimento, etc.)
-  precioVentaHuevo: 250, // Precio de venta del huevo (configurable)
   charts: {}
 };
 
@@ -375,7 +358,7 @@ function renderFooter(id) {
 }
 
 // ============================================================
-//  FUNCIONES DE ACCESO A SUPABASE (incluyendo insumos)
+//  FUNCIONES DE ACCESO A SUPABASE
 // ============================================================
 async function dbLogin(email, pass) {
   const { data, error } = await window.supabase.auth.signInWithPassword({ email, password: pass });
@@ -392,14 +375,12 @@ async function dbRegister(email, pass, ud) {
   await new Promise(r => setTimeout(r, 900));
   const { error: updateErr } = await window.supabase.from('usuarios').update({
     nombre: ud.nombre, documento: ud.documento,
-    direccion: ud.direccion, telefono: ud.telefono,
-    whatsapp: ud.whatsapp, tipo: ud.tipo,
+    edad: ud.edad
   }).eq('user_id', data.user.id);
   if (updateErr) {
     const { error: insertErr } = await window.supabase.from('usuarios').insert({
       user_id: data.user.id, nombre: ud.nombre, documento: ud.documento,
-      email, direccion: ud.direccion, telefono: ud.telefono,
-      whatsapp: ud.whatsapp, tipo: ud.tipo, es_admin: false,
+      email, edad: ud.edad, es_admin: false,
     });
     if (insertErr) throw new Error('Error al guardar perfil: ' + insertErr.message);
   }
@@ -480,37 +461,9 @@ async function dbRegistrarMovimientoAlimento(tipo, cantidad, motivo) {
   });
   if (error) throw error;
 }
-// --- Nuevas funciones para insumos ---
-async function dbAllInsumos() {
-  const { data, error } = await window.supabase.from('insumos').select('*').order('nombre', { ascending: true });
-  if (error) throw error;
-  return data || [];
-}
-async function dbCreateInsumo(insumo) {
-  const { error } = await window.supabase.from('insumos').insert(insumo);
-  if (error) throw error;
-}
-async function dbUpdateInsumo(id, upd) {
-  const { error } = await window.supabase.from('insumos').update(upd).eq('id', id);
-  if (error) throw error;
-}
-async function dbDeleteInsumo(id) {
-  const { error } = await window.supabase.from('insumos').delete().eq('id', id);
-  if (error) throw error;
-}
-// --- Configuración de precio de venta (usamos localStorage o una tabla de configuración) ---
-function getPrecioVentaHuevo() {
-  const saved = localStorage.getItem('precioVentaHuevo');
-  if (saved) return parseFloat(saved);
-  return 250; // valor por defecto
-}
-function setPrecioVentaHuevo(valor) {
-  localStorage.setItem('precioVentaHuevo', String(valor));
-  G.precioVentaHuevo = valor;
-}
 
 // ============================================================
-//  AUTENTICACIÓN Y RECUPERACIÓN
+//  AUTENTICACIÓN Y RECUPERACIÓN DE CONTRASEÑA
 // ============================================================
 function initForgotPassword() {
   document.getElementById('forgotPasswordLink').onclick = () => {
@@ -607,13 +560,14 @@ function initAuthPage() {
     const ud = {
       nombre: document.getElementById('regNombre').value.trim(),
       documento: document.getElementById('regDocumento').value.trim(),
-      direccion: document.getElementById('regDireccion').value.trim(),
-      telefono: document.getElementById('regTelefono').value.trim(),
-      whatsapp: document.getElementById('regWhatsapp').value.trim(),
-      tipo: document.getElementById('regTipo').value,
+      edad: parseInt(document.getElementById('regEdad').value),
     };
-    if (!email || !pass || !ud.nombre) { showMsg('registerErr', 'Nombre, correo y contraseña son obligatorios', 'error'); return; }
+    if (!email || !pass || !ud.nombre || !ud.documento || !ud.edad) {
+      showMsg('registerErr', 'Todos los campos son obligatorios', 'error');
+      return;
+    }
     if (pass.length < 6) { showMsg('registerErr', 'La contraseña debe tener al menos 6 caracteres', 'error'); return; }
+    if (ud.edad < 18) { showMsg('registerErr', 'Debes ser mayor de edad para registrarte', 'error'); return; }
     const btn = document.getElementById('registerBtn');
     btn.disabled = true; btn.textContent = 'Registrando...';
     try {
@@ -629,7 +583,7 @@ function initAuthPage() {
 }
 
 // ============================================================
-//  ADMIN PAGE (CRIANZA) - CON NUEVA PESTAÑA "INSUMOS"
+//  ADMIN PAGE (CRIANZA)
 // ============================================================
 async function initAdminPage() {
   document.getElementById('adminWelcome').textContent = 'Hola, ' + G.nombre;
@@ -637,19 +591,15 @@ async function initAdminPage() {
   document.getElementById('adminTopLogo').onclick = () => document.getElementById('logoFileInput').click();
   setLogoEl(document.getElementById('adminTopLogo'));
 
-  // Cargar precio de venta desde localStorage
-  G.precioVentaHuevo = getPrecioVentaHuevo();
-
   const tabs = [
-    { id: 'dashboard', label: '📊 Dashboard' },
-    { id: 'lotes', label: '🐣 Lotes' },
-    { id: 'produccion', label: '🥚 Producción' },
-    { id: 'alimentacion', label: '🌾 Alimentación' },
-    { id: 'sanidad', label: '💉 Sanidad' },
-    { id: 'costos', label: '💰 Costos' },
-    { id: 'inventario', label: '📦 Inventario' },
-    { id: 'insumos', label: '📈 Insumos' },       // NUEVA PESTAÑA
-    { id: 'reportes', label: '📋 Reportes' }
+    { id: 'dashboard', label: 'Dashboard' },
+    { id: 'lotes', label: 'Lotes' },
+    { id: 'produccion', label: 'Producción' },
+    { id: 'alimentacion', label: 'Alimentación' },
+    { id: 'sanidad', label: 'Sanidad' },
+    { id: 'costos', label: 'Costos' },
+    { id: 'inventario', label: 'Inventario' },
+    { id: 'reportes', label: 'Reportes' }
   ];
   const nav = document.getElementById('adminTabNav');
   const main = document.getElementById('adminMain');
@@ -678,11 +628,10 @@ async function renderAdminTab(tab) {
   else if (tab === 'sanidad') await renderSanidad(cont);
   else if (tab === 'costos') await renderCostos(cont);
   else if (tab === 'inventario') await renderInventario(cont);
-  else if (tab === 'insumos') await renderInsumos(cont);
   else if (tab === 'reportes') await renderReportes(cont);
 }
 
-// ---------- DASHBOARD (con indicadores de costos de insumos) ----------
+// ---------- DASHBOARD ----------
 async function renderDashboard(cont) {
   cont.innerHTML = '<div class="loader"></div>';
   try {
@@ -700,22 +649,12 @@ async function renderDashboard(cont) {
       totalMuertes += muertes;
     }
     const pctPostura = totalAves > 0 ? ((totalHuevosHoy / totalAves) * 100).toFixed(1) : 0;
-    // Obtener precios de insumos promedio
-    const insumos = await dbAllInsumos();
-    const precioCodorniz = insumos.filter(i => i.tipo === 'codorniz').reduce((sum, i) => sum + i.precio, 0) / (insumos.filter(i => i.tipo === 'codorniz').length || 1);
-    const precioAlimento = insumos.filter(i => i.tipo === 'alimento').reduce((sum, i) => sum + i.precio, 0) / (insumos.filter(i => i.tipo === 'alimento').length || 1);
-
     cont.innerHTML = `
       <div class="grid-4">
         <div class="stat-card"><div class="stat-val">${lotesActivos.length}</div><div class="stat-label">Lotes activos</div></div>
         <div class="stat-card"><div class="stat-val">${totalAves}</div><div class="stat-label">Aves en producción</div></div>
         <div class="stat-card"><div class="stat-val">${totalHuevosHoy}</div><div class="stat-label">Huevos hoy</div></div>
         <div class="stat-card"><div class="stat-val">${pctPostura}%</div><div class="stat-label">% Postura hoy</div></div>
-      </div>
-      <div class="grid-3">
-        <div class="stat-card"><div class="stat-val">${pesos(precioCodorniz)}</div><div class="stat-label">Precio promedio codorniz</div></div>
-        <div class="stat-card"><div class="stat-val">${pesos(precioAlimento)}/kg</div><div class="stat-label">Precio promedio alimento</div></div>
-        <div class="stat-card"><div class="stat-val">${pesos(G.precioVentaHuevo)}</div><div class="stat-label">Precio venta huevo</div></div>
       </div>
       <div class="card">
         <div class="card-title">Resumen de lotes activos</div>
@@ -769,7 +708,7 @@ async function renderDashboard(cont) {
   }
 }
 
-// ---------- LOTES (sin cambios) ----------
+// ---------- LOTES ----------
 async function renderLotes(cont) {
   cont.innerHTML = '<div class="loader"></div>';
   try {
@@ -916,7 +855,7 @@ async function renderProduccion(cont) {
       list.innerHTML = allProds.slice(0,30).map(p => `
         <div class="order-card">
           <div><strong>${escHtml(p.clasificacion || 'Sin clasif')}</strong> - ${p.cantidad_huevos} huevos</div>
-          <div class="date">Lote: ${lotes.find(l => l.id === p.lote_id)?.nombre || 'N/A'} - ${fmtDate(p.fecha)}</div>
+          <div class="order-date">Lote: ${lotes.find(l => l.id === p.lote_id)?.nombre || 'N/A'} - ${fmtDate(p.fecha)}</div>
         </div>
       `).join('');
     }
@@ -1013,7 +952,7 @@ async function renderAlimentacion(cont) {
       list.innerHTML = allConsumos.slice(0,20).map(c => `
         <div class="order-card">
           <div><strong>${c.cantidad_kg} kg</strong> - ${escHtml(c.tipo_alimento)}</div>
-          <div class="date">Lote: ${lotes.find(l => l.id === c.lote_id)?.nombre || 'N/A'} - ${fmtDate(c.fecha)}</div>
+          <div class="order-date">Lote: ${lotes.find(l => l.id === c.lote_id)?.nombre || 'N/A'} - ${fmtDate(c.fecha)}</div>
         </div>
       `).join('');
     }
@@ -1129,7 +1068,7 @@ async function renderSanidad(cont) {
         <div class="order-card">
           <div><strong>${escHtml(s.tipo)}</strong> ${s.cantidad ? ' - Cant: ' + s.cantidad : ''}</div>
           <div>${escHtml(s.descripcion || '')}</div>
-          <div class="date">Lote: ${lotes.find(l => l.id === s.lote_id)?.nombre || 'N/A'} - ${fmtDate(s.fecha)}</div>
+          <div class="order-date">Lote: ${lotes.find(l => l.id === s.lote_id)?.nombre || 'N/A'} - ${fmtDate(s.fecha)}</div>
         </div>
       `).join('');
     }
@@ -1138,7 +1077,7 @@ async function renderSanidad(cont) {
   }
 }
 
-// ---------- COSTOS (modificado para asociar insumos) ----------
+// ---------- COSTOS ----------
 async function renderCostos(cont) {
   cont.innerHTML = '<div class="loader"></div>';
   try {
@@ -1148,93 +1087,45 @@ async function renderCostos(cont) {
       cont.innerHTML = '<div class="card"><div class="cart-empty">No hay lotes activos.</div></div>';
       return;
     }
-    const insumos = await dbAllInsumos();
-    let optionsLote = lotesActivos.map(l => `<option value="${l.id}">${l.nombre} (${l.codigo})</option>`).join('');
-    let optionsInsumo = insumos.map(i => `<option value="${i.id}" data-precio="${i.precio}" data-tipo="${i.tipo}">${i.nombre} (${i.ubicacion}) - ${pesos(i.precio)}</option>`).join('');
+    let options = lotesActivos.map(l => `<option value="${l.id}">${l.nombre} (${l.codigo})</option>`).join('');
     cont.innerHTML = `
       <div class="card">
-        <div class="card-title">Registrar costo <small>asociado a insumo</small></div>
+        <div class="card-title">Registrar costo</div>
         <div class="form-row c2">
-          <div class="fg"><label>Lote</label><select id="cosLote">${optionsLote}</select></div>
+          <div class="fg"><label>Lote</label><select id="cosLote">${options}</select></div>
           <div class="fg"><label>Fecha</label><input type="date" id="cosFecha" value="${new Date().toISOString().slice(0,10)}"></div>
         </div>
         <div class="form-row c2">
-          <div class="fg"><label>Insumo</label><select id="cosInsumo"><option value="">-- Seleccionar --</option>${optionsInsumo}</select></div>
-          <div class="fg"><label>Concepto (manual)</label><input id="cosConcepto" placeholder="Ej: Alimento, Medicinas"></div>
+          <div class="fg"><label>Concepto</label><input id="cosConcepto" placeholder="Ej: Alimento, Medicinas, Mano de obra"></div>
+          <div class="fg"><label>Monto ($)</label><input type="number" id="cosMonto" step="0.01" value="0"></div>
         </div>
-        <div class="form-row c2">
-          <div class="fg"><label>Cantidad</label><input type="number" id="cosCantidad" step="0.01" value="1"></div>
-          <div class="fg"><label>Monto total ($)</label><input type="number" id="cosMonto" step="0.01" value="0"></div>
-        </div>
-        <div class="fg"><label>Notas</label><input id="cosNotas" placeholder="Detalles adicionales"></div>
         <button class="btn btn-primary" id="btnRegCosto">Registrar costo</button>
         <div id="cosMsg"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Configuración de precios</div>
-        <div class="form-row c2">
-          <div class="fg"><label>Precio de venta del huevo ($)</label><input type="number" id="precioVentaHuevo" value="${G.precioVentaHuevo}" step="10"></div>
-        </div>
-        <button class="btn btn-primary" id="btnGuardarPrecioVenta">Guardar precio de venta</button>
-        <div id="precioMsg"></div>
       </div>
       <div class="card">
         <div class="card-title">Últimos costos</div>
         <div id="cosList"></div>
       </div>
       <div class="card">
-        <div class="card-title">Costo por huevo y rentabilidad (con precio venta ${pesos(G.precioVentaHuevo)})</div>
+        <div class="card-title">Costo por huevo (por lote)</div>
         <div id="costoHuevoList"></div>
       </div>
     `;
-
-    // Auto calcular monto al seleccionar insumo y cantidad
-    document.getElementById('cosInsumo').addEventListener('change', function() {
-      const selected = this.options[this.selectedIndex];
-      const precio = parseFloat(selected.dataset.precio) || 0;
-      const cantidad = parseFloat(document.getElementById('cosCantidad').value) || 1;
-      if (precio > 0) {
-        document.getElementById('cosMonto').value = (precio * cantidad).toFixed(2);
-      }
-    });
-    document.getElementById('cosCantidad').addEventListener('input', function() {
-      const selected = document.getElementById('cosInsumo');
-      const precio = parseFloat(selected.options[selected.selectedIndex].dataset.precio) || 0;
-      const cantidad = parseFloat(this.value) || 1;
-      if (precio > 0) {
-        document.getElementById('cosMonto').value = (precio * cantidad).toFixed(2);
-      }
-    });
-
     document.getElementById('btnRegCosto').onclick = async () => {
       const lote_id = document.getElementById('cosLote').value;
       const fecha = document.getElementById('cosFecha').value;
-      const insumoId = document.getElementById('cosInsumo').value;
       const concepto = document.getElementById('cosConcepto').value.trim();
       const monto = parseFloat(document.getElementById('cosMonto').value);
-      const cantidad = parseFloat(document.getElementById('cosCantidad').value) || 1;
-      const notas = document.getElementById('cosNotas').value.trim();
-      if (!lote_id || !fecha || (!insumoId && !concepto) || isNaN(monto) || monto <= 0) {
-        showMsg('cosMsg', 'Lote, fecha, insumo o concepto y monto > 0 son obligatorios', 'error');
+      if (!lote_id || !fecha || !concepto || isNaN(monto) || monto <= 0) {
+        showMsg('cosMsg', 'Todos los campos son obligatorios y monto > 0', 'error');
         return;
       }
       try {
-        await dbCreateCosto({ lote_id, fecha, concepto: concepto || 'Insumo', monto, notas, insumo_id: insumoId || null, cantidad });
+        await dbCreateCosto({ lote_id, fecha, concepto, monto });
         showMsg('cosMsg', 'Costo registrado', 'success');
         await renderAdminTab('costos');
       } catch(e) { showMsg('cosMsg', e.message, 'error'); }
     };
-
-    // Guardar precio de venta
-    document.getElementById('btnGuardarPrecioVenta').onclick = () => {
-      const val = parseFloat(document.getElementById('precioVentaHuevo').value);
-      if (!val || val <= 0) { showMsg('precioMsg', 'Ingresa un valor válido', 'error'); return; }
-      setPrecioVentaHuevo(val);
-      showMsg('precioMsg', 'Precio de venta actualizado', 'success');
-      // Actualizar la tabla de rentabilidad
-      renderCostos(cont);
-    };
-
     // Mostrar costos
     let allCostos = [];
     for (const l of lotesActivos) {
@@ -1246,31 +1137,26 @@ async function renderCostos(cont) {
     if (!allCostos.length) {
       list.innerHTML = '<div class="cart-empty">Sin costos</div>';
     } else {
-      list.innerHTML = allCostos.slice(0,20).map(c => {
-        const insumo = insumos.find(i => i.id === c.insumo_id);
-        return `<div class="order-card">
-          <div><strong>${escHtml(c.concepto)}</strong> ${insumo ? ' - ' + insumo.nombre : ''} - ${pesos(c.monto)} ${c.cantidad ? ' (x'+c.cantidad+')' : ''}</div>
-          <div class="date">Lote: ${lotes.find(l => l.id === c.lote_id)?.nombre || 'N/A'} - ${fmtDate(c.fecha)}</div>
-        </div>`;
-      }).join('');
+      list.innerHTML = allCostos.slice(0,20).map(c => `
+        <div class="order-card">
+          <div><strong>${escHtml(c.concepto)}</strong> - ${pesos(c.monto)}</div>
+          <div class="order-date">Lote: ${lotes.find(l => l.id === c.lote_id)?.nombre || 'N/A'} - ${fmtDate(c.fecha)}</div>
+        </div>
+      `).join('');
     }
-
-    // Costo por huevo y rentabilidad
+    // Costo por huevo
     const costoHuevoList = document.getElementById('costoHuevoList');
-    let html = '<div class="data-table-wrap"><table class="data-table"><thead><tr><th>Lote</th><th>Total costos</th><th>Huevos</th><th>Costo/huevo</th><th>Ingreso estimado</th><th>Margen</th></tr></thead><tbody>';
+    let html = '<div class="data-table-wrap"><table class="data-table"><thead><tr><th>Lote</th><th>Total costos</th><th>Huevos producidos</th><th>Costo por huevo</th></tr></thead><tbody>';
     for (const l of lotesActivos) {
       const costos = await dbCostosByLote(l.id);
       const totalCostos = costos.reduce((s, c) => s + c.monto, 0);
       const prods = await dbProduccionesByLote(l.id);
       const totalHuevos = prods.reduce((s, p) => s + p.cantidad_huevos, 0);
       const costoHuevo = totalHuevos > 0 ? totalCostos / totalHuevos : 0;
-      const ingreso = totalHuevos * G.precioVentaHuevo;
-      const margen = ingreso - totalCostos;
-      html += `<tr><td>${escHtml(l.nombre)}</td><td>${pesos(totalCostos)}</td><td>${totalHuevos}</td><td>${pesos(costoHuevo.toFixed(2))}</td><td>${pesos(ingreso)}</td><td>${pesos(margen)}</td></tr>`;
+      html += `<tr><td>${escHtml(l.nombre)}</td><td>${pesos(totalCostos)}</td><td>${totalHuevos}</td><td>${pesos(costoHuevo.toFixed(2))}</td></tr>`;
     }
     html += '</tbody></table></div>';
     costoHuevoList.innerHTML = html;
-
   } catch(e) {
     cont.innerHTML = '<div class="alert alert-error">Error: ' + escHtml(e.message) + '</div>';
   }
@@ -1304,7 +1190,7 @@ async function renderInventario(cont) {
       list.innerHTML = inventario.map(i => `
         <div class="order-card">
           <div><strong>${escHtml(i.tipo_alimento)}</strong> - ${i.stock_kg} kg</div>
-          <div class="date">Actualizado: ${fmtDate(i.fecha_actualizacion)}</div>
+          <div class="order-date">Actualizado: ${fmtDate(i.fecha_actualizacion)}</div>
         </div>
       `).join('');
     }
@@ -1331,127 +1217,10 @@ async function renderInventario(cont) {
       movDiv.innerHTML = movs.map(m => `
         <div class="order-card">
           <div><strong>${m.tipo_alimento}</strong> - ${m.cantidad_kg} kg - ${m.motivo || 'N/A'}</div>
-          <div class="date">${fmtDate(m.fecha)}</div>
+          <div class="order-date">${fmtDate(m.fecha)}</div>
         </div>
       `).join('');
     }
-  } catch(e) {
-    cont.innerHTML = '<div class="alert alert-error">Error: ' + escHtml(e.message) + '</div>';
-  }
-}
-
-// ---------- NUEVA PESTAÑA: INSUMOS ----------
-async function renderInsumos(cont) {
-  cont.innerHTML = '<div class="loader"></div>';
-  try {
-    const insumos = await dbAllInsumos();
-    G.insumos = insumos;
-    let rows = insumos.map(i => `
-      <tr>
-        <td><input id="ins_nom_${i.id}" value="${escAttr(i.nombre)}"></td>
-        <td>
-          <select id="ins_tipo_${i.id}">
-            <option value="codorniz" ${i.tipo==='codorniz'?'selected':''}>Codorniz</option>
-            <option value="alimento" ${i.tipo==='alimento'?'selected':''}>Alimento</option>
-            <option value="medicina" ${i.tipo==='medicina'?'selected':''}>Medicina</option>
-            <option value="otro" ${i.tipo==='otro'?'selected':''}>Otro</option>
-          </select>
-        </td>
-        <td><input id="ins_precio_${i.id}" type="number" step="0.01" value="${i.precio}"></td>
-        <td><input id="ins_ubi_${i.id}" value="${escAttr(i.ubicacion||'')}" placeholder="Ej: Bogotá, Ubaté"></td>
-        <td><input id="ins_prov_${i.id}" value="${escAttr(i.proveedor||'')}" placeholder="Proveedor"></td>
-        <td>
-          <button class="btn btn-primary btn-xs" onclick="guardarInsumo('${i.id}')"><i class="fas fa-save"></i></button>
-          <button class="btn btn-danger btn-xs" onclick="eliminarInsumo('${i.id}')"><i class="fas fa-trash"></i></button>
-        </td>
-      </tr>
-    `).join('');
-
-    cont.innerHTML = `
-      <div class="card">
-        <div class="card-title">📈 Gestión de insumos <small>precios de mercado (Bogotá, Ubaté, etc.)</small></div>
-        <div class="form-row c3">
-          <div class="fg"><label>Nombre</label><input id="insNombre" placeholder="Ej: Codorniz Isa Brown"></div>
-          <div class="fg"><label>Tipo</label>
-            <select id="insTipo">
-              <option value="codorniz">Codorniz</option>
-              <option value="alimento">Alimento</option>
-              <option value="medicina">Medicina</option>
-              <option value="otro">Otro</option>
-            </select>
-          </div>
-          <div class="fg"><label>Precio ($)</label><input type="number" id="insPrecio" step="0.01" value="0"></div>
-        </div>
-        <div class="form-row c2">
-          <div class="fg"><label>Ubicación (ciudad/región)</label><input id="insUbicacion" placeholder="Ej: Bogotá, Ubaté, Colsubsidio"></div>
-          <div class="fg"><label>Proveedor</label><input id="insProveedor" placeholder="Nombre del proveedor"></div>
-        </div>
-        <button class="btn btn-primary" id="btnCrearInsumo"><i class="fas fa-plus"></i> Agregar insumo</button>
-        <div id="insMsg"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Lista de insumos</div>
-        <div class="data-table-wrap"><table class="data-table">
-          <thead><tr><th>Nombre</th><th>Tipo</th><th>Precio</th><th>Ubicación</th><th>Proveedor</th><th>Acciones</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table></div>
-      </div>
-    `;
-
-    document.getElementById('btnCrearInsumo').onclick = async () => {
-      const nombre = document.getElementById('insNombre').value.trim();
-      const tipo = document.getElementById('insTipo').value;
-      const precio = parseFloat(document.getElementById('insPrecio').value);
-      const ubicacion = document.getElementById('insUbicacion').value.trim();
-      const proveedor = document.getElementById('insProveedor').value.trim();
-      if (!nombre || !precio || precio <= 0) {
-        showMsg('insMsg', 'Nombre y precio son obligatorios', 'error');
-        return;
-      }
-      try {
-        await dbCreateInsumo({ nombre, tipo, precio, ubicacion, proveedor });
-        showMsg('insMsg', 'Insumo agregado', 'success');
-        await renderAdminTab('insumos');
-      } catch(e) { showMsg('insMsg', e.message, 'error'); }
-    };
-
-    window.guardarInsumo = async (id) => {
-      const nombre = document.getElementById('ins_nom_' + id).value.trim();
-      const tipo = document.getElementById('ins_tipo_' + id).value;
-      const precio = parseFloat(document.getElementById('ins_precio_' + id).value);
-      const ubicacion = document.getElementById('ins_ubi_' + id).value.trim();
-      const proveedor = document.getElementById('ins_prov_' + id).value.trim();
-      if (!nombre || !precio || precio <= 0) {
-        showToast('Nombre y precio válidos son requeridos', 'error');
-        return;
-      }
-      try {
-        await dbUpdateInsumo(id, { nombre, tipo, precio, ubicacion, proveedor });
-        showToast('Insumo actualizado', 'success');
-        await renderAdminTab('insumos');
-      } catch(e) { showToast(e.message, 'error'); }
-    };
-
-    window.eliminarInsumo = async (id) => {
-      if (!confirm('Eliminar este insumo?')) return;
-      try {
-        await dbDeleteInsumo(id);
-        showToast('Insumo eliminado', 'success');
-        await renderAdminTab('insumos');
-      } catch(e) { showToast(e.message, 'error'); }
-    };
-
-    // Función auxiliar para toast
-    function showToast(msg, type) {
-      const container = document.createElement('div');
-      container.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:999;background:#333;color:#fff;padding:10px 20px;border-radius:8px;font-weight:bold;';
-      if (type === 'error') container.style.background = '#9b2a1a';
-      else if (type === 'success') container.style.background = '#3b6b3b';
-      container.textContent = msg;
-      document.body.appendChild(container);
-      setTimeout(() => container.remove(), 3000);
-    }
-
   } catch(e) {
     cont.innerHTML = '<div class="alert alert-error">Error: ' + escHtml(e.message) + '</div>';
   }
@@ -1468,7 +1237,6 @@ async function renderReportes(cont) {
         <button class="btn btn-primary" id="expConsumos">CSV Consumos</button>
         <button class="btn btn-primary" id="expSanidad">CSV Sanidad</button>
         <button class="btn btn-primary" id="expCostos">CSV Costos</button>
-        <button class="btn btn-primary" id="expInsumos">CSV Insumos</button>
       </div>
       <div id="reportMsg" class="mt-1"></div>
     </div>
@@ -1508,16 +1276,9 @@ async function renderReportes(cont) {
   document.getElementById('expCostos').onclick = async () => {
     const { data } = await supabase.from('costos_lote').select('*');
     if (!data || !data.length) { alert('No hay datos'); return; }
-    let csv = 'Lote,Fecha,Concepto,Monto,Insumo_id,Cantidad\n';
-    data.forEach(c => { csv += `"${c.lote_id}","${c.fecha}","${c.concepto}",${c.monto},"${c.insumo_id||''}",${c.cantidad||''}\n`; });
+    let csv = 'Lote,Fecha,Concepto,Monto\n';
+    data.forEach(c => { csv += `"${c.lote_id}","${c.fecha}","${c.concepto}",${c.monto}\n`; });
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = 'costos.csv'; a.click();
-  };
-  document.getElementById('expInsumos').onclick = async () => {
-    const { data } = await supabase.from('insumos').select('*');
-    if (!data || !data.length) { alert('No hay datos'); return; }
-    let csv = 'Nombre,Tipo,Precio,Ubicación,Proveedor\n';
-    data.forEach(i => { csv += `"${i.nombre}","${i.tipo}",${i.precio},"${i.ubicacion||''}","${i.proveedor||''}"\n`; });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = 'insumos.csv'; a.click();
   };
   // Resumen
   try {
@@ -1526,7 +1287,7 @@ async function renderReportes(cont) {
     if (!lotes.length) {
       resumen.innerHTML = '<div class="cart-empty">No hay datos</div>';
     } else {
-      let html = '<div class="data-table-wrap"><table class="data-table"><thead><tr><th>Lote</th><th>Huevos (30d)</th><th>Consumo (kg)</th><th>Mortalidad</th><th>Costo total</th><th>Margen estimado</th></tr></thead><tbody>';
+      let html = '<div class="data-table-wrap"><table class="data-table"><thead><tr><th>Lote</th><th>Huevos (30d)</th><th>Consumo (kg)</th><th>Mortalidad</th><th>Costo total</th></tr></thead><tbody>';
       for (const l of lotes) {
         const prods = (await dbProduccionesByLote(l.id)).filter(p => new Date(p.fecha) >= new Date(Date.now() - 30*24*60*60*1000));
         const totalHuevos = prods.reduce((s, p) => s + p.cantidad_huevos, 0);
@@ -1536,9 +1297,7 @@ async function renderReportes(cont) {
         const muertes = sanitarios.filter(s => s.tipo === 'muerte').reduce((s, e) => s + (e.cantidad || 0), 0);
         const costos = await dbCostosByLote(l.id);
         const totalCostos = costos.reduce((s, c) => s + c.monto, 0);
-        const ingreso = totalHuevos * G.precioVentaHuevo;
-        const margen = ingreso - totalCostos;
-        html += `<tr><td>${escHtml(l.nombre)}</td><td>${totalHuevos}</td><td>${totalConsumo.toFixed(1)}</td><td>${muertes}</td><td>${pesos(totalCostos)}</td><td>${pesos(margen)}</td></tr>`;
+        html += `<tr><td>${escHtml(l.nombre)}</td><td>${totalHuevos}</td><td>${totalConsumo.toFixed(1)}</td><td>${muertes}</td><td>${pesos(totalCostos)}</td></tr>`;
       }
       html += '</tbody></table></div>';
       resumen.innerHTML = html;
