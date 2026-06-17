@@ -266,9 +266,16 @@ h1,h2,h3,h4,h5 { font-family: var(--font-head); }
 //  CONFIGURACIÓN SUPABASE
 // ============================================================
 const SUPABASE_URL      = "https://dfzkhlclwdxrkokzbtra.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_9dkfwX7NGWw19ChZwMVF2A_cgQsdi8l"; // <-- OK
+const SUPABASE_ANON_KEY = "sb_publishable_9dkfwX7NGWw19ChZwMVF2A_cgQsdi8l";
+
+// Verificar que la clave no sea la de ejemplo
+if (SUPABASE_ANON_KEY === "sb_publishable_9dkfwX7NGWw19ChZwMVF2A_cgQsdi8l") {
+  console.warn("Usando la anon key por defecto. Asegúrate de que sea correcta.");
+}
 
 window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+console.log("🚀 Sistema de crianza inicializado. Conectado a Supabase:", SUPABASE_URL);
 
 // ============================================================
 //  ESTADO GLOBAL
@@ -1291,6 +1298,7 @@ async function renderReportes(cont) {
 //  BOOT
 // ============================================================
 (async function boot() {
+  console.log("🔧 Iniciando aplicación...");
   handleRecoveryToken();
   document.getElementById('logoFileInput').onchange = e => {
     const file = e.target.files[0];
@@ -1306,7 +1314,9 @@ async function renderReportes(cont) {
     reader.readAsDataURL(file);
   };
   const { data: { session } } = await window.supabase.auth.getSession();
+  console.log("🔑 Sesión:", session ? "activa" : "no activa");
   if (!session) {
+    console.log("📋 Mostrando página de autenticación");
     document.getElementById('authPage').style.display = '';
     initAuthPage();
     return;
@@ -1317,6 +1327,7 @@ async function renderReportes(cont) {
     G.esAdmin = profile.es_admin || false;
     G.nombre = profile.nombre || 'Usuario';
     G.email = profile.email || session.user.email || '';
+    console.log("👤 Usuario:", G.nombre, "esAdmin:", G.esAdmin);
     if (!G.esAdmin) {
       alert('Acceso restringido a administradores. Contacta al soporte.');
       await window.supabase.auth.signOut();
@@ -1324,6 +1335,7 @@ async function renderReportes(cont) {
       return;
     }
   } catch(e) {
+    console.error("❌ Error al cargar perfil:", e);
     await window.supabase.auth.signOut();
     document.getElementById('authPage').style.display = '';
     initAuthPage();
@@ -1333,6 +1345,7 @@ async function renderReportes(cont) {
   document.getElementById('authPage').style.display = 'none';
   document.getElementById('adminPage').classList.add('active');
   await initAdminPage();
+  console.log("✅ Aplicación lista");
 })();
 </script>
 </body>
