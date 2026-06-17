@@ -1,402 +1,2356 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Granja Villa Myriam · Crianza</title>
-<link rel="icon" type="image/svg+xml" href="logo.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,600&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-/* ========== ESTILOS COMPLETOS (mantén los que ya tienes) ========== */
-/* No los repito por brevedad, asegúrate de incluirlos */
-</style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Granja Villa Myriam · Crianza</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐣</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* ============================================================
+           ESTILOS MODERNOS Y PROFESIONALES
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #f6f4f0;
+            color: #1e1a16;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* ---------- AUTH ---------- */
+        #authPage {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(145deg, #1f1105 0%, #3b2010 50%, #5c331a 100%);
+            padding: 1.5rem;
+        }
+
+        .auth-card {
+            background: #fffcf7;
+            border-radius: 2rem;
+            padding: 2.5rem 2rem;
+            max-width: 440px;
+            width: 100%;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        .auth-brand {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-brand .logo-icon {
+            font-size: 3.5rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-brand h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2b1a0c;
+            letter-spacing: -0.02em;
+        }
+
+        .auth-brand p {
+            font-size: 0.9rem;
+            color: #7a6a5a;
+            margin-top: 0.1rem;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 0.25rem;
+            background: #f0ebe4;
+            border-radius: 2.5rem;
+            padding: 0.25rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .auth-tab {
+            flex: 1;
+            border: none;
+            background: none;
+            padding: 0.6rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #7a6a5a;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .auth-tab.active {
+            background: #fff;
+            color: #2b1a0c;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .auth-tab:hover:not(.active) {
+            color: #2b1a0c;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #8a7a6a;
+            margin-bottom: 0.3rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 1.5px solid #e6ddd4;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            background: #fff;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #b8712a;
+            box-shadow: 0 0 0 3px rgba(184, 113, 42, 0.12);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.6rem;
+            border: none;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: #b8712a;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #a05f22;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(184, 113, 42, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e6ddd4;
+            color: #2b1a0c;
+        }
+
+        .btn-secondary:hover {
+            background: #d5cabc;
+        }
+
+        .btn-success {
+            background: #3b6b3b;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #2f562f;
+        }
+
+        .btn-danger {
+            background: #9b2a1a;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #7f1f11;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 1rem;
+            font-size: 0.8rem;
+            width: auto;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        .alert {
+            padding: 0.7rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-error {
+            background: #fce8e4;
+            color: #9b2a1a;
+            border: 1px solid #f5c6c1;
+        }
+
+        .alert-success {
+            background: #e6f4e6;
+            color: #2f562f;
+            border: 1px solid #b7dbb7;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+        .mt-1 {
+            margin-top: 0.5rem;
+        }
+        .mt-2 {
+            margin-top: 1rem;
+        }
+        .mb-1 {
+            margin-bottom: 0.5rem;
+        }
+        .mb-2 {
+            margin-bottom: 1rem;
+        }
+        .gap-1 {
+            gap: 0.5rem;
+        }
+        .flex {
+            display: flex;
+        }
+        .flex-wrap {
+            flex-wrap: wrap;
+        }
+        .items-center {
+            align-items: center;
+        }
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        .link-forgot {
+            display: block;
+            text-align: right;
+            font-size: 0.85rem;
+            color: #b8712a;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+
+        .link-forgot:hover {
+            text-decoration: underline;
+        }
+
+        /* ---------- ADMIN LAYOUT ---------- */
+        #adminPage {
+            display: none;
+            min-height: 100vh;
+            background: #f6f4f0;
+        }
+
+        #adminPage.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* TOPBAR */
+        .topbar {
+            background: #fffcf7;
+            border-bottom: 1px solid #e6ddd4;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .topbar-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f0ebe4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .topbar-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .topbar-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #2b1a0c;
+        }
+
+        .topbar-sub {
+            font-size: 0.75rem;
+            color: #8a7a6a;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .badge-admin {
+            background: #e8e0ff;
+            color: #4a2b7a;
+            padding: 0.2rem 0.7rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            border: 1px solid #c5b8ee;
+        }
+
+        /* TABS */
+        .tab-nav {
+            background: #fffcf7;
+            border-bottom: 1px solid #e6ddd4;
+            overflow-x: auto;
+            padding: 0 1.5rem;
+            display: flex;
+            gap: 0.25rem;
+            scrollbar-width: none;
+        }
+
+        .tab-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            border: none;
+            background: none;
+            padding: 0.7rem 1.2rem;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #8a7a6a;
+            cursor: pointer;
+            border-bottom: 2.5px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            color: #2b1a0c;
+            border-bottom-color: #b8712a;
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: #2b1a0c;
+        }
+
+        /* MAIN */
+        .main {
+            flex: 1;
+            padding: 1.5rem;
+            max-width: 1280px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        /* CARDS */
+        .card {
+            background: #fffcf7;
+            border-radius: 1.25rem;
+            border: 1px solid #e6ddd4;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px dashed #e6ddd4;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #2b1a0c;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-title i {
+            color: #b8712a;
+            width: 1.25rem;
+        }
+
+        /* GRIDS */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem;
+        }
+
+        /* STATS */
+        .stat-card {
+            background: #faf7f2;
+            border-radius: 1rem;
+            padding: 1.25rem;
+            text-align: center;
+            border: 1px solid #e6ddd4;
+        }
+
+        .stat-card .icon {
+            font-size: 1.75rem;
+            color: #b8712a;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-card .value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #2b1a0c;
+        }
+
+        .stat-card .label {
+            font-size: 0.8rem;
+            color: #8a7a6a;
+            margin-top: 0.1rem;
+        }
+
+        /* TABLES */
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .table th {
+            text-align: left;
+            padding: 0.6rem 0.7rem;
+            background: #f0ebe4;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #5a4a3a;
+            white-space: nowrap;
+        }
+
+        .table td {
+            padding: 0.6rem 0.7rem;
+            border-bottom: 1px solid #e6ddd4;
+            vertical-align: middle;
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table tr:hover td {
+            background: #faf7f2;
+        }
+
+        .table input,
+        .table select {
+            padding: 0.3rem 0.5rem;
+            border: 1.5px solid #e6ddd4;
+            border-radius: 0.5rem;
+            font-family: inherit;
+            font-size: 0.85rem;
+            background: #fff;
+            width: 100%;
+        }
+
+        .table input:focus,
+        .table select:focus {
+            outline: none;
+            border-color: #b8712a;
+        }
+
+        /* BADGES */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+            padding: 0.15rem 0.6rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .badge-active {
+            background: #e6f4e6;
+            color: #2f562f;
+        }
+
+        .badge-inactive {
+            background: #fce8e4;
+            color: #9b2a1a;
+        }
+
+        .badge-amber {
+            background: #fef3e0;
+            color: #b8712a;
+        }
+
+        .badge-blue {
+            background: #e3edf5;
+            color: #2c7da0;
+        }
+
+        .badge-purple {
+            background: #e8e0ff;
+            color: #4a2b7a;
+        }
+
+        /* ORDER CARDS */
+        .order-card {
+            background: #faf7f2;
+            border-radius: 0.75rem;
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.6rem;
+            border-left: 4px solid #b8712a;
+        }
+
+        .order-card.green {
+            border-left-color: #3b6b3b;
+        }
+        .order-card.red {
+            border-left-color: #9b2a1a;
+        }
+        .order-card.blue {
+            border-left-color: #2c7da0;
+        }
+
+        .order-card .meta {
+            font-size: 0.8rem;
+            color: #8a7a6a;
+            margin-top: 0.2rem;
+        }
+
+        /* KPI BAR */
+        .kpi-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #faf7f2;
+            border-radius: 0.75rem;
+            padding: 0.6rem 1rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            flex-wrap: wrap;
+        }
+
+        .kpi-bar strong {
+            color: #b8712a;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 1.5rem;
+        }
+
+        .modal-box {
+            background: #fffcf7;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            max-width: 520px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #2b1a0c;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e6ddd4;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        /* FOOTER */
+        .app-footer {
+            background: #fffcf7;
+            border-top: 1px solid #e6ddd4;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: #8a7a6a;
+        }
+
+        .app-footer .footer-links {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .app-footer .footer-links button {
+            background: none;
+            border: none;
+            font-family: inherit;
+            font-size: 0.8rem;
+            color: #8a7a6a;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .app-footer .footer-links button:hover {
+            color: #2b1a0c;
+        }
+
+        /* LOADER */
+        .loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            color: #8a7a6a;
+            gap: 0.75rem;
+        }
+
+        .loader::after {
+            content: '';
+            width: 28px;
+            height: 28px;
+            border: 3px solid #e6ddd4;
+            border-top-color: #b8712a;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* CHART WRAPPER */
+        .chart-wrap {
+            position: relative;
+            width: 100%;
+            height: 220px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            color: #8a7a6a;
+            font-style: italic;
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #d5cabc;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .auth-card {
+                padding: 1.75rem 1.25rem;
+            }
+
+            .topbar {
+                padding: 0.6rem 1rem;
+            }
+
+            .main {
+                padding: 1rem;
+            }
+
+            .tab-nav {
+                padding: 0 1rem;
+            }
+
+            .tab-btn {
+                padding: 0.6rem 0.9rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* FORM ROW */
+        .form-row {
+            display: grid;
+            gap: 0.85rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .form-row.c2 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        @media (max-width: 480px) {
+            .form-row.c2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<!-- ====== AUTH PAGE ====== -->
-<div id="authPage" class="page">
-  <div class="auth-wrap">
-    <div class="auth-brand">
-      <img src="logo.svg" alt="Logo" id="authLogoImg" style="display:none">
-      <span id="authLogoFallback" style="font-size:4rem;display:block;animation:float 3s ease-in-out infinite">&#x1F414;</span>
-      <h1>Granja Villa Myriam &middot; Crianza</h1>
-      <p>Gestion de produccion avicola</p>
-    </div>
-    <div class="auth-card">
-      <div class="auth-tabs">
-        <button class="auth-tab active" id="tabLoginBtn">Iniciar sesion</button>
-        <button class="auth-tab" id="tabRegisterBtn">Registrarse</button>
-      </div>
-      <div id="loginPanel">
-        <div class="form-row">
-          <div class="fg"><label>Correo electronico</label><input type="email" id="loginEmail" placeholder="admin@finca.com" autocomplete="email"></div>
-          <div class="fg"><label>Contrasena</label><input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"></div>
+    <!-- ============================================================
+    AUTH PAGE
+    ============================================================ -->
+    <div id="authPage">
+        <div class="auth-card">
+            <div class="auth-brand">
+                <span class="logo-icon">🐣</span>
+                <h1>Granja Villa Myriam</h1>
+                <p>Sistema de Gestión de Crianza</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tabLogin">Iniciar sesión</button>
+                <button class="auth-tab" id="tabRegister">Registrarse</button>
+            </div>
+
+            <!-- LOGIN -->
+            <div id="loginPanel">
+                <div class="form-group">
+                    <label>Correo electrónico</label>
+                    <input type="email" id="loginEmail" placeholder="admin@finca.com" />
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="loginPass" placeholder="••••••••" />
+                </div>
+                <div id="loginErr"></div>
+                <button class="btn btn-primary btn-block" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Ingresar
+                </button>
+                <span class="link-forgot" id="forgotLink">¿Olvidaste tu contraseña?</span>
+            </div>
+
+            <!-- REGISTER -->
+            <div id="registerPanel" class="hidden">
+                <div class="form-row c2">
+                    <div class="form-group">
+                        <label>Nombre completo *</label>
+                        <input type="text" id="regNombre" placeholder="Juan Pérez" />
+                    </div>
+                    <div class="form-group">
+                        <label>Cédula / Documento *</label>
+                        <input type="text" id="regDocumento" placeholder="123456789" />
+                    </div>
+                </div>
+                <div class="form-row c2">
+                    <div class="form-group">
+                        <label>Edad</label>
+                        <input type="number" id="regEdad" placeholder="30" min="18" max="99" />
+                    </div>
+                    <div class="form-group">
+                        <label>Correo electrónico *</label>
+                        <input type="email" id="regEmail" placeholder="admin@finca.com" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña * (mín. 6 caracteres)</label>
+                    <input type="password" id="regPassword" placeholder="••••••••" />
+                </div>
+                <div id="registerErr"></div>
+                <button class="btn btn-primary btn-block" id="registerBtn">
+                    <i class="fas fa-user-plus"></i> Crear cuenta
+                </button>
+                <p style="font-size:0.8rem;margin-top:0.75rem;color:#8a7a6a;text-align:center;">
+                    Solo personal autorizado puede registrarse
+                </p>
+            </div>
         </div>
-        <div id="loginErr"></div>
-        <button class="btn btn-primary btn-block mt-1" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Ingresar</button>
-        <div style="text-align:right;margin-top:0.75rem">
-          <span class="link-forgot" id="forgotLink">Olvidaste tu contrasena?</span>
+    </div>
+
+    <!-- ============================================================
+    ADMIN PAGE
+    ============================================================ -->
+    <div id="adminPage">
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="topbar-brand">
+                <div class="topbar-logo" id="adminTopLogo">🐣</div>
+                <div>
+                    <div class="topbar-title">Granja Villa Myriam</div>
+                    <div class="topbar-sub">Panel de Producción</div>
+                </div>
+            </div>
+            <div class="topbar-actions">
+                <span class="badge-admin"><i class="fas fa-shield-alt"></i> Admin</span>
+                <span id="adminWelcome" style="font-style:italic;font-size:0.9rem;"></span>
+                <button class="btn btn-secondary btn-sm" id="adminLogout">
+                    <i class="fas fa-sign-out-alt"></i> Salir
+                </button>
+            </div>
+        </header>
+
+        <!-- TABS -->
+        <nav class="tab-nav" id="adminTabNav"></nav>
+
+        <!-- MAIN -->
+        <main class="main" id="adminMain"></main>
+
+        <!-- FOOTER -->
+        <footer class="app-footer" id="footerAdmin"></footer>
+    </div>
+
+    <!-- ============================================================
+    MODALES
+    ============================================================ -->
+    <div id="supportModal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <div class="modal-title"><i class="fas fa-headset" style="color:#b8712a;"></i> Soporte</div>
+            <p style="line-height:1.8;">
+                <i class="fab fa-whatsapp" style="color:#3b6b3b;"></i>
+                <strong>WhatsApp:</strong>
+                <a href="https://wa.me/573054126770" target="_blank">305 412 6770</a><br />
+                <i class="fas fa-phone" style="color:#b8712a;"></i>
+                <strong>Teléfono:</strong> 305 868 60 94<br />
+                <i class="fas fa-envelope" style="color:#2c7da0;"></i>
+                <strong>Email:</strong> soporte@granjavilla.com
+            </p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary btn-block" id="closeSupportBtn">Cerrar</button>
+            </div>
         </div>
-      </div>
-      <div id="registerPanel" class="hidden">
-        <div class="form-row c2">
-          <div class="fg"><label>Nombre completo *</label><input type="text" id="regNombre" placeholder="Juan Perez"></div>
-          <div class="fg"><label>Cedula / Documento *</label><input type="text" id="regDocumento" placeholder="123456789"></div>
+    </div>
+
+    <div id="forgotModal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <div class="modal-title">Recuperar contraseña</div>
+            <div class="form-group">
+                <label>Correo electrónico</label>
+                <input type="email" id="resetEmail" placeholder="admin@finca.com" />
+            </div>
+            <div id="resetMsg"></div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="sendResetBtn">Enviar instrucciones</button>
+                <button class="btn btn-secondary" id="closeForgotBtn">Cancelar</button>
+            </div>
         </div>
-        <div class="form-row c2">
-          <div class="fg"><label>Edad</label><input type="number" id="regEdad" placeholder="30" min="18" max="99"></div>
-          <div class="fg"><label>Correo electronico *</label><input type="email" id="regEmail" placeholder="admin@finca.com"></div>
+    </div>
+
+    <div id="newPasswordModal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <div class="modal-title">Nueva contraseña</div>
+            <div class="form-group">
+                <label>Nueva contraseña (mín. 6 caracteres)</label>
+                <input type="password" id="newPassword" placeholder="••••••••" />
+            </div>
+            <div class="form-group">
+                <label>Confirmar contraseña</label>
+                <input type="password" id="confirmPassword" placeholder="••••••••" />
+            </div>
+            <div id="newPassMsg"></div>
+            <div class="modal-actions">
+                <button class="btn btn-success" id="updatePasswordBtn">Actualizar</button>
+                <button class="btn btn-secondary" id="closeNewPassBtn">Cancelar</button>
+            </div>
         </div>
-        <div class="form-row">
-          <div class="fg"><label>Contrasena * (min. 6 car.)</label><input type="password" id="regPassword" placeholder="••••••••" autocomplete="new-password"></div>
-        </div>
-        <div id="registerErr"></div>
-        <button class="btn btn-primary btn-block mt-1" id="registerBtn"><i class="fas fa-user-plus"></i> Crear cuenta</button>
-        <p style="font-size:0.8rem;margin-top:0.5rem;color:var(--c-muted);text-align:center">Solo personal autorizado puede registrarse</p>
-      </div>
     </div>
-    <div id="footerAuth" style="width:100%;max-width:500px"></div>
-  </div>
-</div>
 
-<!-- ====== ADMIN PAGE ====== -->
-<div id="adminPage">
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="topbar-brand">
-        <div class="topbar-logo" id="adminTopLogo" title="Clic para cambiar logo">&#x1F414;</div>
-        <div>
-          <div class="topbar-title">Granja Villa Myriam &middot; Crianza</div>
-          <div class="topbar-sub">Panel de Produccion</div>
-        </div>
-      </div>
-      <div class="topbar-actions">
-        <span class="badge badge-admin"><i class="fas fa-shield-alt"></i> Admin</span>
-        <span id="adminWelcome" style="font-style:italic;font-size:.9rem"></span>
-        <button class="btn btn-ghost btn-sm" id="adminLogout"><i class="fas fa-sign-out-alt"></i> Salir</button>
-      </div>
-    </div>
-  </header>
-  <nav class="tab-nav"><div class="tab-nav-inner" id="adminTabNav"></div></nav>
-  <main class="main" id="adminMain"></main>
-  <div id="footerAdmin"></div>
-</div>
+    <input type="file" id="logoFileInput" accept="image/*" style="display:none;" />
 
-<!-- ====== MODALES ====== -->
-<div id="supportModal" class="modal-overlay hidden">
-  <div class="modal-box">
-    <div class="modal-title"><i class="fas fa-headset" style="color:var(--c-amber)"></i> Soporte</div>
-    <p style="line-height:1.8">
-      <i class="fab fa-whatsapp" style="color:var(--c-green)"></i> <strong>WhatsApp:</strong> <a href="https://wa.me/573054126770" target="_blank">305 412 6770</a><br>
-      <i class="fas fa-phone" style="color:var(--c-amber)"></i> <strong>Telefono:</strong> 305 868 60 94<br>
-      <i class="fas fa-envelope" style="color:var(--c-blue)"></i> <strong>Email:</strong> soporte@granjavilla.com
-    </p>
-    <div class="modal-actions"><button class="btn btn-ghost" id="closeSupportBtn"><i class="fas fa-times"></i> Cerrar</button></div>
-  </div>
-</div>
+    <!-- ============================================================
+    SCRIPT COMPLETO
+    ============================================================ -->
+    <script>
+        // ================================================================
+        //   CONFIGURACIÓN SUPABASE
+        // ================================================================
+        const SUPABASE_URL = "https://dfzkhlclwdxrkokzbtra.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_9dkfwX7NGWw19ChZwMVF2A_cgQsdi8l";
+        const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-<div id="forgotModal" class="modal-overlay hidden">
-  <div class="modal-box">
-    <div class="modal-title">Recuperar contrasena</div>
-    <div class="form-row">
-      <div class="fg"><label>Correo electronico</label><input type="email" id="resetEmail" placeholder="admin@finca.com"></div>
-    </div>
-    <div id="resetMsg"></div>
-    <div class="modal-actions">
-      <button class="btn btn-primary" id="sendResetBtn">Enviar instrucciones</button>
-      <button class="btn btn-ghost" id="closeForgotBtn">Cancelar</button>
-    </div>
-  </div>
-</div>
+        // ================================================================
+        //   ESTADO GLOBAL
+        // ================================================================
+        const G = {
+            userId: null,
+            esAdmin: false,
+            nombre: '',
+            email: '',
+            charts: {},
+        };
 
-<div id="newPasswordModal" class="modal-overlay hidden">
-  <div class="modal-box">
-    <div class="modal-title">Nueva contrasena</div>
-    <div class="form-row">
-      <div class="fg"><label>Nueva contrasena (min. 6 car.)</label><input type="password" id="newPassword" placeholder="••••••••"></div>
-      <div class="fg"><label>Confirmar contrasena</label><input type="password" id="confirmPassword" placeholder="••••••••"></div>
-    </div>
-    <div id="newPassMsg"></div>
-    <div class="modal-actions">
-      <button class="btn btn-success" id="updatePasswordBtn">Actualizar</button>
-      <button class="btn btn-ghost" id="closeNewPassBtn">Cancelar</button>
-    </div>
-  </div>
-</div>
+        const CHART_COLORS = ['#b8712a', '#3b6b3b', '#2c7da0', '#9b2a1a', '#6a4a9a', '#d4903f', '#5a9a5a', '#4a9abf', '#c05040',
+            '#8a6ab0'
+        ];
 
-<input type="file" id="logoFileInput" accept="image/*" style="display:none">
+        // ================================================================
+        //   UTILIDADES
+        // ================================================================
+        const $ = (id) => document.getElementById(id);
+        const showMsg = (id, msg, type) => {
+            const el = $(id);
+            if (el) el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+        };
+        const clearMsg = (id) => { const el = $(id); if (el) el.innerHTML = ''; };
+        const pesos = (n) => '$' + Number(n).toLocaleString('es-CO');
+        const fmtDate = (d) => {
+            try {
+                const dt = new Date(d);
+                const dd = String(dt.getDate()).padStart(2, '0');
+                const mo = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'][dt
+                .getMonth()];
+                const yy = dt.getFullYear();
+                const hh = String(dt.getHours()).padStart(2, '0');
+                const mi = String(dt.getMinutes()).padStart(2, '0');
+                return dd + ' ' + mo + ' ' + yy + ', ' + hh + ':' + mi;
+            } catch (_) { return String(d); }
+        };
+        const fmtDateShort = (d) => {
+            try {
+                const dt = new Date(d);
+                return String(dt.getDate()).padStart(2, '0') + '/' + String(dt.getMonth() + 1).padStart(2, '0') + '/' + dt
+                    .getFullYear();
+            } catch (_) { return String(d); }
+        };
+        const todayISO = () => new Date().toISOString().slice(0, 10);
+        const escHtml = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const escAttr = (s) => String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+        const lsGet = (k) => { try { return localStorage.getItem(k) || null; } catch (_) { return null; } };
+        const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (_) {} };
+        const destroyChart = (key) => { if (G.charts[key]) { try { G.charts[key].destroy(); } catch (_) {} G.charts[key] =
+                null; } };
+        const lastNDays = (n) => {
+            const arr = [];
+            for (let i = n - 1; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                arr.push(d.toISOString().slice(0, 10));
+            }
+            return arr;
+        };
 
-<script>
-// ============================================================
-//  CONFIGURACION SUPABASE
-// ============================================================
-const SUPABASE_URL      = "https://dfzkhlclwdxrkokzbtra.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_9dkfwX7NGWw19ChZwMVF2A_cgQsdi8l";
-window._sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const setLogoEl = (el) => {
+            const saved = lsGet('granjaLogo');
+            el.innerHTML = saved ?
+                `<img src="${escAttr(saved)}" alt="Logo" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />` :
+                '🐣';
+        };
 
-// ============================================================
-//  ESTADO GLOBAL
-// ============================================================
-var G = { userId: null, esAdmin: false, nombre: '', email: '', charts: {} };
-var CHART_COLORS = ['#b8712a','#3b6b3b','#2c7da0','#9b2a1a','#6a4a9a','#d4903f','#5a9a5a','#4a9abf','#c05040','#8a6ab0'];
+        const renderFooter = (id) => {
+            const el = $(id);
+            if (!el) return;
+            el.innerHTML = `
+                <div class="footer-links">
+                    <button id="wa_${id}"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                    <button id="sup_${id}"><i class="fas fa-headset"></i> Soporte</button>
+                </div>
+                <span>Granja Villa Myriam · Sistema de Crianza</span>
+            `;
+            $(`wa_${id}`).onclick = () => window.open('https://wa.me/573054126770', '_blank');
+            $(`sup_${id}`).onclick = () => $('supportModal').classList.remove('hidden');
+        };
 
-// ============================================================
-//  UTILS (todos los utilitarios que ya tenías, incluirlos aquí)
-// ============================================================
-function pesos(n) { return '$' + Number(n).toLocaleString('es-CO'); }
-function fmtDate(d) {
-  try {
-    var dt = new Date(d);
-    var dd = String(dt.getDate()).padStart(2,'0');
-    var mo = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'][dt.getMonth()];
-    var yy = dt.getFullYear();
-    var hh = String(dt.getHours()).padStart(2,'0');
-    var mi = String(dt.getMinutes()).padStart(2,'0');
-    return dd + ' ' + mo + ' ' + yy + ', ' + hh + ':' + mi;
-  } catch(_) { return String(d); }
-}
-function fmtDateShort(d) {
-  try {
-    var dt = new Date(d);
-    return String(dt.getDate()).padStart(2,'0') + '/' + String(dt.getMonth()+1).padStart(2,'0') + '/' + dt.getFullYear();
-  } catch(_) { return String(d); }
-}
-function todayISO() { return new Date().toISOString().slice(0,10); }
-function showMsg(id, msg, type) { var el = document.getElementById(id); if (el) el.innerHTML = '<div class="alert alert-' + type + '">' + msg + '</div>'; }
-function clearMsg(id) { var el = document.getElementById(id); if (el) el.innerHTML = ''; }
-function gid(id) { return document.getElementById(id); }
-function escAttr(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function lsSet(k,v) { try { localStorage.setItem(k,v); } catch(_) {} }
-function lsGet(k) { try { return localStorage.getItem(k)||null; } catch(_) { return null; } }
-function destroyChart(key) { if (G.charts[key]) { try { G.charts[key].destroy(); } catch(_) {} G.charts[key] = null; } }
-function lastNDays(n) { var arr = []; for (var i = n-1; i >= 0; i--) { var d = new Date(); d.setDate(d.getDate() - i); arr.push(d.toISOString().slice(0,10)); } return arr; }
-function setLogoEl(el) { var saved = lsGet('granjaLogo'); el.innerHTML = saved ? '<img src="'+escAttr(saved)+'" alt="Logo">' : '&#x1F414;'; }
-function updateAuthLogo() {
-  var img = gid('authLogoImg'), fb = gid('authLogoFallback');
-  var saved = lsGet('granjaLogo');
-  if (saved && img && fb) { img.src = saved; img.style.display = 'block'; fb.style.display = 'none'; }
-  else if (img && fb) { img.style.display = 'none'; fb.style.display = 'block'; }
-}
-function renderFooter(id) {
-  var el = gid(id); if (!el) return;
-  el.innerHTML = '<div class="app-footer"><div class="footer-links">' +
-    '<button class="btn btn-ghost btn-sm" id="wa_'+id+'"><i class="fab fa-whatsapp"></i> WhatsApp</button>' +
-    '<button class="btn btn-ghost btn-sm" id="sup_'+id+'"><i class="fas fa-headset"></i> Soporte</button>' +
-    '</div><span class="footer-copy">Granja Villa Myriam &middot; Sistema de Crianza</span></div>';
-  gid('wa_'+id).onclick = function(){ window.open('https://wa.me/573054126770','_blank'); };
-  gid('sup_'+id).onclick = function(){ gid('supportModal').classList.remove('hidden'); };
-}
+        // ================================================================
+        //   FUNCIONES SUPABASE
+        // ================================================================
+        async function dbLogin(email, pass) {
+            const { data, error } = await _sb.auth.signInWithPassword({ email, password: pass });
+            if (error) throw error;
+            return data.user;
+        }
 
-// ============================================================
-//  FUNCIONES DE ACCESO A SUPABASE (SOLO LAS QUE SE USAN)
-// ============================================================
-async function dbLogin(email, pass) {
-  var r = await window._sb.auth.signInWithPassword({ email: email, password: pass });
-  if (r.error) throw r.error;
-  return r.data.user;
-}
+        async function dbRegister(email, pass, ud) {
+            const { data, error } = await _sb.auth.signUp({
+                email,
+                password: pass,
+                options: { data: { nombre: ud.nombre } }
+            });
+            if (error) {
+                if (error.status === 429) throw new Error('RATE_LIMIT');
+                throw error;
+            }
+            if (!data.user) throw new Error('No se pudo crear el usuario.');
 
-// ---- dbRegister sin reintentos automáticos (para no saturar) ----
-async function dbRegister(email, pass, ud) {
-  try {
-    // 1. Crear el usuario en Auth
-    var r = await window._sb.auth.signUp({
-      email: email,
-      password: pass,
-      options: { data: { nombre: ud.nombre } }
-    });
-    if (r.error) {
-      if (r.error.status === 429) {
-        throw new Error('RATE_LIMIT');
-      }
-      throw r.error;
-    }
-    if (!r.data.user) throw new Error('No se pudo crear el usuario.');
+            // Esperar a que el trigger cree el perfil
+            const user_id = data.user.id;
+            let perfilCreado = false;
+            for (let i = 0; i < 10; i++) {
+                await new Promise(r => setTimeout(r, 500));
+                const { data: perfil, error: perfilError } = await _sb
+                    .from('usuarios')
+                    .select('*')
+                    .eq('user_id', user_id)
+                    .single();
+                if (!perfilError && perfil) {
+                    perfilCreado = true;
+                    break;
+                }
+            }
 
-    // 2. Esperar a que el trigger cree el perfil (máx 5 segundos)
-    var user_id = r.data.user.id;
-    var perfilCreado = false;
-    for (var wait = 0; wait < 10; wait++) {
-      await new Promise(function(res){ setTimeout(res, 500); });
-      var { data: perfil, error: perfilError } = await window._sb
-        .from('usuarios')
-        .select('*')
-        .eq('user_id', user_id)
-        .single();
-      if (!perfilError && perfil) {
-        perfilCreado = true;
-        break;
-      }
-    }
+            if (!perfilCreado) {
+                const { error: insertError } = await _sb
+                    .from('usuarios')
+                    .insert({
+                        user_id,
+                        nombre: ud.nombre,
+                        documento: ud.documento,
+                        edad: ud.edad,
+                        email,
+                        es_admin: false
+                    });
+                if (insertError) throw new Error('Error al crear perfil: ' + insertError.message);
+            } else {
+                await _sb.from('usuarios')
+                    .update({ documento: ud.documento, edad: ud.edad })
+                    .eq('user_id', user_id);
+            }
+            return data.user;
+        }
 
-    if (!perfilCreado) {
-      // Si el trigger falló, insertar manualmente
-      var { error: insertError } = await window._sb
-        .from('usuarios')
-        .insert({
-          user_id: user_id,
-          nombre: ud.nombre,
-          documento: ud.documento,
-          edad: ud.edad,
-          email: email,
-          es_admin: false
-        });
-      if (insertError) throw new Error('Error al crear perfil: ' + insertError.message);
-    } else {
-      // Actualizar campos extra
-      var { error: updateError } = await window._sb
-        .from('usuarios')
-        .update({ documento: ud.documento, edad: ud.edad })
-        .eq('user_id', user_id);
-      if (updateError) console.warn('No se pudo actualizar campos extra:', updateError);
-    }
+        async function dbProfile(uid) {
+            let lastErr = null;
+            for (let i = 0; i < 4; i++) {
+                if (i > 0) await new Promise(r => setTimeout(r, 600 * i));
+                const { data, error } = await _sb.from('usuarios').select('*').eq('user_id', uid).single();
+                if (!error) return data;
+                lastErr = error;
+                if (error.code !== 'PGRST116') break;
+            }
+            throw lastErr;
+        }
 
-    return r.data.user;
-  } catch (e) {
-    if (e.message === 'RATE_LIMIT') {
-      throw new Error('Has hecho demasiados intentos de registro. Espera unos minutos y vuelve a intentarlo.');
-    }
-    throw e;
-  }
-}
+        // ---- Lotes ----
+        async function dbAllLotes() {
+            const { data, error } = await _sb.from('lotes').select('*').order('fecha_ingreso', { ascending: false });
+            if (error) throw error;
+            return data || [];
+        }
 
-// ---- dbProfile con reintentos ----
-async function dbProfile(uid) {
-  var lastErr = null;
-  for (var i = 0; i < 4; i++) {
-    if (i > 0) await new Promise(function(res){ setTimeout(res, 600 * i); });
-    var r = await window._sb.from('usuarios').select('*').eq('user_id', uid).single();
-    if (!r.error) return r.data;
-    lastErr = r.error;
-    if (r.error.code !== 'PGRST116') break;
-  }
-  throw lastErr;
-}
+        async function dbCreateLote(lote) {
+            const { error } = await _sb.from('lotes').insert(lote);
+            if (error) throw error;
+        }
 
-// ---- dbAllLotes y demás (incluir todas las que ya tenías) ----
-// ... (inserta aquí todas las demás funciones db* que ya tenías)
+        async function dbUpdateLote(id, upd) {
+            const { error } = await _sb.from('lotes').update(upd).eq('id', id);
+            if (error) throw error;
+        }
 
-// ============================================================
-//  AUTH PAGE
-// ============================================================
-function initAuthPage() {
-  var tL = gid('tabLoginBtn'), tR = gid('tabRegisterBtn');
-  var pL = gid('loginPanel'), pR = gid('registerPanel');
-  tL.onclick = function(){ tL.classList.add('active'); tR.classList.remove('active'); pL.classList.remove('hidden'); pR.classList.add('hidden'); clearMsg('loginErr'); };
-  tR.onclick = function(){ tR.classList.add('active'); tL.classList.remove('active'); pR.classList.remove('hidden'); pL.classList.add('hidden'); clearMsg('registerErr'); };
-  [gid('loginEmail'), gid('loginPass')].forEach(function(el){
-    el.addEventListener('keydown', function(e){ if (e.key==='Enter') gid('loginBtn').click(); });
-  });
-  gid('loginBtn').onclick = async function() {
-    var email = gid('loginEmail').value.trim();
-    var pass = gid('loginPass').value;
-    if (!email || !pass) { showMsg('loginErr','Ingresa correo y contrasena','error'); return; }
-    var btn = gid('loginBtn'); btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ingresando...';
-    try {
-      await dbLogin(email, pass);
-      location.reload();
-    } catch(e) { showMsg('loginErr', e.message || 'Error al iniciar sesion','error'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Ingresar'; }
-  };
-  gid('registerBtn').onclick = async function() {
-    var email = gid('regEmail').value.trim();
-    var pass = gid('regPassword').value;
-    var ud = {
-      nombre: gid('regNombre').value.trim(),
-      documento: gid('regDocumento').value.trim(),
-      edad: parseInt(gid('regEdad').value) || null
-    };
-    if (!email || !pass || !ud.nombre || !ud.documento) { showMsg('registerErr','Nombre, documento, correo y contrasena son obligatorios','error'); return; }
-    if (pass.length < 6) { showMsg('registerErr','La contrasena debe tener al menos 6 caracteres','error'); return; }
-    var btn = gid('registerBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
-    try {
-      await dbRegister(email, pass, ud);
-      showMsg('registerErr','Cuenta creada. Ahora inicia sesion.','success');
-      setTimeout(function(){ tL.click(); }, 1500);
-    } catch(e) {
-      if (e.message.includes('demasiados intentos')) {
-        showMsg('registerErr','Demasiados intentos de registro. Espera 10 minutos y vuelve a intentarlo.','error');
-      } else {
-        showMsg('registerErr', e.message || 'Error al registrar','error');
-      }
-    }
-    finally {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-user-plus"></i> Crear cuenta';
-    }
-  };
-  renderFooter('footerAuth');
-  updateAuthLogo();
-  initForgotPassword();
-}
+        async function dbDeleteLote(id) {
+            const { error } = await _sb.from('lotes').delete().eq('id', id);
+            if (error) throw error;
+        }
 
-// ============================================================
-//  ADMIN PAGE (incluir todas las funciones de renderizado que ya tenías)
-// ============================================================
-// ... (no las repito, pero deben estar todas aquí)
+        // ---- Producción ----
+        async function dbProduccionesByLote(loteId) {
+            const { data, error } = await _sb.from('produccion_diaria').select('*').eq('lote_id', loteId).order('fecha', {
+                ascending: false
+            });
+            if (error) throw error;
+            return data || [];
+        }
 
-// ============================================================
-//  BOOT
-// ============================================================
-(async function boot() {
-  initModals();
-  handleRecoveryToken();
+        async function dbAllProducciones() {
+            const { data, error } = await _sb.from('produccion_diaria').select('*').order('fecha', { ascending: false });
+            if (error) throw error;
+            return data || [];
+        }
 
-  gid('logoFileInput').onchange = function(e) {
-    var file = e.target.files[0]; if (!file) return;
-    if (file.size > 3*1024*1024) { alert('El logo debe pesar menos de 3 MB.'); return; }
-    var reader = new FileReader();
-    reader.onload = function(ev) {
-      lsSet('granjaLogo', ev.target.result);
-      setLogoEl(gid('adminTopLogo'));
-      updateAuthLogo();
-    };
-    reader.readAsDataURL(file);
-  };
+        async function dbCreateProduccion(p) {
+            const { error } = await _sb.from('produccion_diaria').insert(p);
+            if (error) throw error;
+        }
 
-  var sessionRes = await window._sb.auth.getSession();
-  if (!sessionRes.data.session) {
-    gid('authPage').style.display = '';
-    initAuthPage();
-    return;
-  }
+        // ---- Consumos ----
+        async function dbConsumosByLote(loteId) {
+            const { data, error } = await _sb.from('consumos_alimento').select('*').eq('lote_id', loteId).order('fecha', {
+                ascending: false
+            });
+            if (error) throw error;
+            return data || [];
+        }
 
-  var session = sessionRes.data.session;
-  try {
-    G.userId = session.user.id;
-    var profile = await dbProfile(G.userId);
-    G.esAdmin = profile.es_admin || false;
-    G.nombre = profile.nombre || session.user.email || 'Usuario';
-    G.email = profile.email || session.user.email || '';
-    if (!G.esAdmin) {
-      alert('Acceso restringido a administradores. Contacta al soporte.');
-      await window._sb.auth.signOut();
-      location.reload();
-      return;
-    }
-  } catch(e) {
-    console.error('Error cargando perfil:', e);
-    await window._sb.auth.signOut();
-    gid('authPage').style.display = '';
-    initAuthPage();
-    showMsg('loginErr', 'Error al cargar perfil. Por favor inicia sesion nuevamente.', 'warn');
-    return;
-  }
+        async function dbCreateConsumo(c) {
+            const { error } = await _sb.from('consumos_alimento').insert(c);
+            if (error) throw error;
+        }
 
-  gid('authPage').style.display = 'none';
-  gid('adminPage').classList.add('active');
-  await initAdminPage();
+        // ---- Sanidad ----
+        async function dbSanitariosByLote(loteId) {
+            const { data, error } = await _sb.from('eventos_sanitarios').select('*').eq('lote_id', loteId).order('fecha', {
+                ascending: false
+            });
+            if (error) throw error;
+            return data || [];
+        }
 
-  window._sb.auth.onAuthStateChange(function(event) {
-    if (event === 'SIGNED_OUT') location.reload();
-  });
-})();
-</script>
+        async function dbCreateSanitario(s) {
+            const { error } = await _sb.from('eventos_sanitarios').insert(s);
+            if (error) throw error;
+        }
+
+        // ---- Costos ----
+        async function dbCostosByLote(loteId) {
+            const { data, error } = await _sb.from('costos_lote').select('*').eq('lote_id', loteId).order('fecha', {
+                ascending: false
+            });
+            if (error) throw error;
+            return data || [];
+        }
+
+        async function dbCreateCosto(c) {
+            const { error } = await _sb.from('costos_lote').insert(c);
+            if (error) throw error;
+        }
+
+        // ---- Inventario ----
+        async function dbInventarioAlimento() {
+            const { data, error } = await _sb.from('inventario_alimento').select('*');
+            if (error) throw error;
+            return data || [];
+        }
+
+        async function dbUpdateInventarioAlimento(tipo, stock) {
+            const { error } = await _sb.from('inventario_alimento').upsert({ tipo_alimento: tipo, stock_kg: stock,
+                fecha_actualizacion: new Date().toISOString() }, { onConflict: 'tipo_alimento' });
+            if (error) throw error;
+        }
+
+        async function dbRegistrarMovimientoAlimento(tipo, cantidad, motivo) {
+            const { error } = await _sb.from('movimientos_alimento').insert({ tipo_alimento: tipo, cantidad_kg: cantidad,
+                motivo });
+            if (error) throw error;
+        }
+
+        // ================================================================
+        //   AUTENTICACIÓN - PÁGINA
+        // ================================================================
+        function initAuthPage() {
+            const tL = $('tabLogin'),
+                tR = $('tabRegister');
+            const pL = $('loginPanel'),
+                pR = $('registerPanel');
+
+            tL.onclick = () => {
+                tL.classList.add('active');
+                tR.classList.remove('active');
+                pL.classList.remove('hidden');
+                pR.classList.add('hidden');
+                clearMsg('loginErr');
+            };
+            tR.onclick = () => {
+                tR.classList.add('active');
+                tL.classList.remove('active');
+                pR.classList.remove('hidden');
+                pL.classList.add('hidden');
+                clearMsg('registerErr');
+            };
+
+            // Login
+            $('loginBtn').onclick = async () => {
+                const email = $('loginEmail').value.trim();
+                const pass = $('loginPass').value;
+                if (!email || !pass) { showMsg('loginErr', 'Ingresa correo y contraseña', 'error'); return; }
+                const btn = $('loginBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ingresando...';
+                try {
+                    await dbLogin(email, pass);
+                    location.reload();
+                } catch (e) {
+                    showMsg('loginErr', e.message || 'Error al iniciar sesión', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Ingresar';
+                }
+            };
+
+            // Register
+            $('registerBtn').onclick = async () => {
+                const email = $('regEmail').value.trim();
+                const pass = $('regPassword').value;
+                const ud = {
+                    nombre: $('regNombre').value.trim(),
+                    documento: $('regDocumento').value.trim(),
+                    edad: parseInt($('regEdad').value) || null,
+                };
+                if (!email || !pass || !ud.nombre || !ud.documento) {
+                    showMsg('registerErr', 'Nombre, documento, correo y contraseña son obligatorios', 'error');
+                    return;
+                }
+                if (pass.length < 6) {
+                    showMsg('registerErr', 'La contraseña debe tener al menos 6 caracteres', 'error');
+                    return;
+                }
+                const btn = $('registerBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
+                try {
+                    await dbRegister(email, pass, ud);
+                    showMsg('registerErr', 'Cuenta creada. Ahora inicia sesión.', 'success');
+                    setTimeout(() => tL.click(), 1500);
+                } catch (e) {
+                    if (e.message === 'RATE_LIMIT') {
+                        showMsg('registerErr', 'Demasiados intentos. Espera unos minutos.', 'error');
+                    } else {
+                        showMsg('registerErr', e.message || 'Error al registrar', 'error');
+                    }
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-user-plus"></i> Crear cuenta';
+                }
+            };
+
+            // Forgot password
+            $('forgotLink').onclick = () => $('forgotModal').classList.remove('hidden');
+            $('closeForgotBtn').onclick = () => $('forgotModal').classList.add('hidden');
+            $('sendResetBtn').onclick = async () => {
+                const email = $('resetEmail').value.trim();
+                if (!email) { showMsg('resetMsg', 'Ingresa tu correo', 'error'); return; }
+                const btn = $('sendResetBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+                try {
+                    const { error } = await _sb.auth.resetPasswordForEmail(email, { redirectTo: window.location
+                            .origin + window.location.pathname });
+                    if (error) throw error;
+                    showMsg('resetMsg', 'Instrucciones enviadas a tu correo.', 'success');
+                    setTimeout(() => $('forgotModal').classList.add('hidden'), 3000);
+                } catch (e) {
+                    showMsg('resetMsg', e.message || 'Error al enviar', 'error');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Enviar instrucciones';
+                }
+            };
+
+            // New password
+            $('closeNewPassBtn').onclick = () => $('newPasswordModal').classList.add('hidden');
+            $('updatePasswordBtn').onclick = async () => {
+                const np = $('newPassword').value;
+                const cp = $('confirmPassword').value;
+                if (!np || np.length < 6) { showMsg('newPassMsg', 'Mínimo 6 caracteres', 'error'); return; }
+                if (np !== cp) { showMsg('newPassMsg', 'Las contraseñas no coinciden', 'error'); return; }
+                const btn = $('updatePasswordBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
+                try {
+                    const { error } = await _sb.auth.updateUser({ password: np });
+                    if (error) throw error;
+                    showMsg('newPassMsg', 'Contraseña actualizada.', 'success');
+                    setTimeout(() => $('newPasswordModal').classList.add('hidden'), 2000);
+                } catch (e) {
+                    showMsg('newPassMsg', e.message || 'Error', 'error');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Actualizar';
+                }
+            };
+
+            renderFooter('footerAuth');
+
+            // Logo
+            const saved = lsGet('granjaLogo');
+            if (saved) {
+                const img = document.querySelector('.auth-brand .logo-icon');
+                if (img) img.innerHTML = `<img src="${escAttr(saved)}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;display:block;margin:0 auto;" />`;
+            }
+        }
+
+        // ================================================================
+        //   ADMIN PAGE - RENDERIZADO
+        // ================================================================
+        async function initAdminPage() {
+            $('adminWelcome').textContent = 'Hola, ' + G.nombre;
+            $('adminLogout').onclick = () => _sb.auth.signOut().then(() => location.reload());
+            $('adminTopLogo').onclick = () => $('logoFileInput').click();
+            setLogoEl($('adminTopLogo'));
+
+            const tabs = [
+                { id: 'dashboard', label: '<i class="fas fa-chart-pie"></i> Dashboard' },
+                { id: 'lotes', label: '<i class="fas fa-layer-group"></i> Lotes' },
+                { id: 'produccion', label: '<i class="fas fa-egg"></i> Producción' },
+                { id: 'alimentacion', label: '<i class="fas fa-wheat-awn"></i> Alimentación' },
+                { id: 'sanidad', label: '<i class="fas fa-stethoscope"></i> Sanidad' },
+                { id: 'costos', label: '<i class="fas fa-coins"></i> Costos' },
+                { id: 'inventario', label: '<i class="fas fa-boxes-stacked"></i> Inventario' },
+                { id: 'reportes', label: '<i class="fas fa-file-chart-column"></i> Reportes' },
+            ];
+
+            const nav = $('adminTabNav');
+            const main = $('adminMain');
+
+            nav.innerHTML = tabs.map((t, i) =>
+                `<button class="tab-btn ${i === 0 ? 'active' : ''}" data-tab="${t.id}">${t.label}</button>`
+            ).join('');
+
+            main.innerHTML = tabs.map((t) =>
+                `<div id="panel-${t.id}" class="panel ${t.id === 'dashboard' ? 'active' : ''}"></div>`
+            ).join('');
+
+            nav.querySelectorAll('[data-tab]').forEach((btn) => {
+                btn.onclick = async () => {
+                    nav.querySelectorAll('[data-tab]').forEach((b) => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    main.querySelectorAll('.panel').forEach((p) => p.classList.remove('active'));
+                    const panel = $(`panel-${btn.dataset.tab}`);
+                    panel.classList.add('active');
+                    await renderTab(btn.dataset.tab, panel);
+                };
+            });
+
+            await renderTab('dashboard', $('panel-dashboard'));
+            renderFooter('footerAdmin');
+        }
+
+        async function renderTab(tab, cont) {
+            if (!cont) return;
+            try {
+                if (tab === 'dashboard') await renderDashboard(cont);
+                else if (tab === 'lotes') await renderLotes(cont);
+                else if (tab === 'produccion') await renderProduccion(cont);
+                else if (tab === 'alimentacion') await renderAlimentacion(cont);
+                else if (tab === 'sanidad') await renderSanidad(cont);
+                else if (tab === 'costos') await renderCostos(cont);
+                else if (tab === 'inventario') await renderInventario(cont);
+                else if (tab === 'reportes') await renderReportes(cont);
+            } catch (e) {
+                cont.innerHTML =
+                    `<div class="alert alert-error"><i class="fas fa-circle-exclamation"></i> Error: ${escHtml(e.message)}</div>`;
+                console.error('renderTab error:', e);
+            }
+        }
+
+        // ---------- DASHBOARD ----------
+        async function renderDashboard(cont) {
+            cont.innerHTML = '<div class="loader">Cargando</div>';
+            const lotes = await dbAllLotes();
+            const lotesActivos = lotes.filter(l => l.estado === 'activo');
+            const hoy = todayISO();
+            let totalHuevosHoy = 0,
+                totalAves = 0,
+                totalMuertes = 0;
+            let todasProducciones = [];
+
+            for (const l of lotesActivos) {
+                totalAves += l.cantidad_inicial;
+                const prods = await dbProduccionesByLote(l.id);
+                todasProducciones = todasProducciones.concat(prods);
+                const hoyProd = prods.filter(p => p.fecha === hoy);
+                totalHuevosHoy += hoyProd.reduce((s, p) => s + p.cantidad_huevos, 0);
+                const san = await dbSanitariosByLote(l.id);
+                totalMuertes += san.filter(s => s.tipo === 'muerte').reduce((s, e) => s + (e.cantidad || 0), 0);
+            }
+
+            const pctPostura = totalAves > 0 ? ((totalHuevosHoy / totalAves) * 100).toFixed(1) : '0.0';
+            const mortalidad = totalAves > 0 ? ((totalMuertes / totalAves) * 100).toFixed(2) : '0.00';
+
+            cont.innerHTML = `
+                <div class="grid-4">
+                    <div class="stat-card">
+                        <div class="icon"><i class="fas fa-layer-group"></i></div>
+                        <div class="value">${lotesActivos.length}</div>
+                        <div class="label">Lotes activos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon"><i class="fas fa-dove"></i></div>
+                        <div class="value">${totalAves}</div>
+                        <div class="label">Aves en producción</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon"><i class="fas fa-egg"></i></div>
+                        <div class="value">${totalHuevosHoy}</div>
+                        <div class="label">Huevos hoy</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon"><i class="fas fa-percent"></i></div>
+                        <div class="value">${pctPostura}%</div>
+                        <div class="label">% Postura hoy</div>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i class="fas fa-list"></i> Lotes activos</div></div>
+                        <div id="dashLotesList"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i class="fas fa-bar-chart"></i> Mortalidad: <span style="color:#9b2a1a;">${mortalidad}%</span></div></div>
+                        <div class="kpi-bar"><i class="fas fa-skull" style="color:#9b2a1a;"></i> <span>Muertes acumuladas: <strong>${totalMuertes}</strong> aves</span></div>
+                        <div id="dashExtraStats"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="fas fa-chart-line"></i> Producción últimos 7 días</div></div>
+                    <div class="chart-wrap"><canvas id="dashChart"></canvas></div>
+                </div>
+            `;
+
+            // Lotes activos
+            const listEl = $('dashLotesList');
+            if (!lotesActivos.length) {
+                listEl.innerHTML = '<div class="empty-state"><i class="fas fa-layer-group"></i>No hay lotes activos</div>';
+            } else {
+                listEl.innerHTML = lotesActivos.map(l => {
+                    const prods = todasProducciones.filter(p => p.lote_id === l.id);
+                    const totalP = prods.reduce((s, p) => s + p.cantidad_huevos, 0);
+                    const avg = prods.length ? (totalP / prods.length).toFixed(0) : 0;
+                    const dias = Math.floor((new Date() - new Date(l.fecha_ingreso)) / (1000 * 60 * 60 * 24));
+                    return `<div class="order-card">
+                        <div><strong>${escHtml(l.nombre)}</strong> <span class="badge badge-active">${l.estado}</span></div>
+                        <div style="font-size:0.85rem;color:#8a7a6a;">${l.cantidad_inicial} aves · ${dias} días · Prom ${avg} hv/día</div>
+                    </div>`;
+                }).join('');
+            }
+
+            // Extra stats
+            const treintaDias = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+            let totalProduccion30 = 0;
+            todasProducciones.forEach(p => {
+                if (new Date(p.fecha) >= treintaDias) totalProduccion30 += p.cantidad_huevos;
+            });
+            $('dashExtraStats').innerHTML = `
+                <div class="kpi-bar"><i class="fas fa-egg" style="color:#b8712a;"></i> <span>Producción últimos 30 días: <strong>${totalProduccion30}</strong> huevos</span></div>
+                <div class="kpi-bar"><i class="fas fa-boxes-stacked" style="color:#2c7da0;"></i> <span>Total lotes: <strong>${lotes.length}</strong></span></div>
+            `;
+
+            // Chart
+            requestAnimationFrame(() => {
+                const canvas = $('dashChart');
+                if (!canvas) return;
+                destroyChart('dash');
+                const fechas = lastNDays(7);
+                const data = fechas.map(f => {
+                    return todasProducciones.filter(p => p.fecha === f).reduce((s, p) => s + p
+                    .cantidad_huevos, 0);
+                });
+                G.charts.dash = new Chart(canvas.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: fechas.map(f => fmtDateShort(f)),
+                        datasets: [{
+                            label: 'Huevos diarios',
+                            data: data,
+                            borderColor: CHART_COLORS[0],
+                            backgroundColor: 'rgba(184,113,42,0.08)',
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 4,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                    }
+                });
+            });
+        }
+
+        // ---------- LOTES ----------
+        async function renderLotes(cont) {
+            cont.innerHTML = '<div class="loader">Cargando</div>';
+            const lotes = await dbAllLotes();
+
+            window.guardarLote = async (id) => {
+                const nombre = $(`lnom_${id}`).value.trim();
+                const estado = $(`lest_${id}`).value;
+                if (!nombre) { alert('El nombre no puede estar vacío'); return; }
+                await dbUpdateLote(id, { nombre, estado });
+                await renderTab('lotes', cont);
+            };
+
+            window.eliminarLote = async (id) => {
+                if (!confirm('¿Eliminar este lote? Se perderán todos los datos asociados.')) return;
+                await dbDeleteLote(id);
+                await renderTab('lotes', cont);
+            };
+
+            const rows = lotes.map(l => `
+                <tr>
+                    <td><input id="lnom_${l.id}" value="${escAttr(l.nombre)}" /></td>
+                    <td><span class="badge badge-amber">${escAttr(l.codigo)}</span></td>
+                    <td>${fmtDateShort(l.fecha_ingreso)}</td>
+                    <td>${l.cantidad_inicial}</td>
+                    <td>
+                        <select id="lest_${l.id}">
+                            <option value="activo" ${l.estado === 'activo' ? 'selected' : ''}>activo</option>
+                            <option value="inactivo" ${l.estado === 'inactivo' ? 'selected' : ''}>inactivo</option>
+                            <option value="vendido" ${l.estado === 'vendido' ? 'selected' : ''}>vendido</option>
+                        </select>
+                    </td>
+                    <td style="display:flex;gap:0.35rem;flex-wrap:wrap;">
+                        <button class="btn btn-primary btn-sm" onclick="guardarLote('${l.id}')"><i class="fas fa-save"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="eliminarLote('${l.id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+
+            cont.innerHTML = `
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="fas fa-plus-circle"></i> Registrar nuevo lote</div></div>
+                    <div class="form-row c2">
+                        <div class="form-group"><label>Código único *</label><input id="loteCodigo" placeholder="Ej: L2025-01" /></div>
+                        <div class="form-group"><label>Nombre *</label><input id="loteNombre" placeholder="Ej: Lote A" /></div>
+                    </div>
+                    <div class="form-row c2">
+                        <div class="form-group"><label>Fecha ingreso *</label><input type="date" id="loteFecha" value="${todayISO()}" /></div>
+                        <div class="form-group"><label>Raza</label><input id="loteRaza" placeholder="Ej: Isa Brown" /></div>
+                    </div>
+                    <div class="form-row c2">
+                        <div class="form-group"><label>Cantidad inicial *</label><input type="number" id="loteCant" min="1" value="100" /></div>
+                        <div class="form-group"><label>Procedencia</label><input id="loteProcedencia" placeholder="Ej: Incubadora propia" /></div>
+                    </div>
+                    <button class="btn btn-primary" id="btnCrearLote"><i class="fas fa-plus"></i> Crear lote</button>
+                    <div id="loteMsg"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="fas fa-list"></i> Lotes registrados <small style="font-weight:400;color:#8a7a6a;">${lotes.length} total</small></div></div>
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead><tr><th>Nombre</th><th>Código</th><th>Ingreso</th><th>Aves</th><th>Estado</th><th>Acciones</th></tr></thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            $('btnCrearLote').onclick = async () => {
+                const codigo = $('loteCodigo').value.trim();
+                const nombre = $('loteNombre').value.trim();
+                const fecha = $('loteFecha').value;
+                const raza = $('loteRaza').value.trim();
+                const cantidad = parseInt($('loteCant').value);
+                const procedencia = $('loteProcedencia').value.trim();
+                if (!codigo || !nombre || !fecha || !cantidad || cantidad < 1) {
+                    showMsg('loteMsg', 'Todos los campos son obligatorios', 'error');
+                    return;
+                }
+                try {
+                    await dbCreateLote({ codigo, nombre, fecha_ingreso: fecha, raza, cantidad_inicial: cantidad,
+                        procedencia, estado: 'activo', created_by: G.userId });
+                    showMsg('loteMsg', 'Lote creado correctamente', 'success');
+                    await renderTab('lotes', cont);
+                } catch (e) {
+                    showMsg('loteMsg', e.message.includes('unique') ? 'El código ya existe' : e.message, 'error');
+                }
+            };
+        }
+
+        // ---------- PRODUCCIÓN ----------
+        async function renderProduccion(cont) {
+            cont.innerHTML = '<div class="loader">Cargando</div>';
+            const lotes = await dbAllLotes();
+            const lotesActivos = lotes.filter(l => l.estado === 'activo');
+            if (!lotesActivos.length) {
+                cont.innerHTML = '<div class="empty-state"><i class="fas fa-layer-group"></i>No hay lotes activos.</div>';
+                return;
+            }
+
+            const options = lotesActivos.map(l =>
+                `<option value="${l.id}">${escHtml(l.nombre)} (${escHtml(l.codigo)})</option>`
+            ).join('');
+
+            let allProds = [];
+            for (const l of lotesActivos) {
+                const prods = await dbProduccionesByLote(l.id);
+                allProds = allProds.concat(prods);
+            }
+            allProds.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+            cont.innerHTML = `
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="fas fa-plus-circle"></i> Registrar producción diaria</div></div>
+                    <div class="form-row c2">
+                        <div class="form-group"><label>Lote</label><select id="prodLote">${options}</select></div>
+                        <div class="form-group"><label>Fecha</label><input type="date" id="prodFecha" value="${todayISO()}" /></div>
+                    </div>
+                    <div class="form-row c2">
+                        <div class="form-group"><label>Cantidad de huevos</label><input type="number" id="prodCant" min="0" value="0" /></div>
+                        <div class="form-group"><label>Clasificación</label>
+                            <select id="prodClasif">
+                                <option value="grandes">Grandes</option>
+                                <option value="medianos">Medianos</option>
+                                <option value="pequeños">Pequeños</option>
+                                <option value="sucios">Sucios</option>
+                                <option value="rotos">Rotos</option>
+                                <option value="suelo">Suelo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="btnRegProd"><i class="fas fa-save"></i> Registrar producción</button>
+                    <div id="prodMsg"></div>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i class="fas fa-list"></i> Últimas producciones</div></div>
+                        <div id="prodList"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i class="fas fa-bar-chart"></i> Resumen por lote (hoy)</div></div>
+                        <div id="prodResumen"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="fas fa-chart-line"></i> Producción por lote (últimos 15 días)</div></div>
+                    <div class="chart-wrap"><canvas id="prodChart"></canvas></div>
+                </div>
+            `;
+
+            $('btnRegProd').onclick = async () => {
+                const lote_id = $('prodLote').value;
+                const fecha = $('prodFecha').value;
+                const cantidad = parseInt($('prodCant').value);
+                const clasificacion = $('prodClasif').value;
+                if (!lote_id || !fecha || isNaN(cantidad) || cantidad < 0) {
+                    showMsg('prodMsg', 'Todos los campos son obligatorios', 'error');
+                    return;
+                }
+                try {
+                    await dbCreateProduccion({ lote_id: parseInt(lote_id), fecha, cantidad_huevos: cantidad,
+                        clasificacion });
+                    showMsg('prodMsg', 'Producción registrada', 'success');
+                    await renderTab('produccion', cont);
+                } catch (e) { showMsg('prodMsg', e.message, 'error'); }
+            };
+
+            // Lista
+            const listEl = $('prodList');
+            if (!allProds.length) {
+                listEl.innerHTML = '<div class="empty-state"><i class="fas fa-egg"></i>Sin registros</div>';
+            } else {
+                const loteMap = {};
+                lotes.forEach(l => loteMap[l.id] = l.nombre);
+                listEl.innerHTML = allProds.slice(0, 25).map(p => `
+                    <div class="order-card">
+                        <div><strong>${p.cantidad_huevos}</strong> huevos · <span class="badge badge-amber">${escHtml(p.clasificacion || 'sin clasif')}</span></div>
+                        <div class="meta">${loteMap[p.lote_id] || 'N/A'} · ${fmtDateShort(p.fecha)}</div>
+                    </div>
+                `).join('');
+            }
+
+            // Resumen hoy
+            const hoy = todayISO();
+            const resEl = $('prodResumen');
+            let resHtml = '';
+            lotesActivos.forEach(l => {
+                const p = allProds.filter(pp => pp.lote_id === l.id && pp.fecha === hoy);
+                const total = p.reduce((s, pp) => s + pp.cantidad_huevos, 0);
+                const pct = l.cantidad_inicial > 0 ? ((total / l.cantidad_inicial) * 100).toFixed(1) : '0.0';
+                resHtml += `<div class="kpi-bar"><i class="fas fa-egg" style="color:#b8712a;"></i> <span>${escHtml(l.nombre)}: <strong>${total}</strong> huevos (${pct}% postura)</span></div>`;
+            });
+            resEl.innerHTML = resHtml || '<div class="empty-state" style="padding:1rem;">Sin producción hoy</div>';
+
+            // Chart
+            requestAnimationFrame(() => {
+                const canvas = $('prodChart');
+                if (!canvas) return;
+                destroyChart('prod');
+                const fechas = lastNDays(15);
+                const datasets = lotesActivos.map((l, idx) => {
+                    const data = fechas.map(f => {
+                        return allProds.filter(pp => pp.lote_id === l.id && pp.fecha === f)
+                            .reduce((s, pp) => s + pp.cantidad_huevos, 0);
+                    });
+                    return { label: l.nombre, data, fill: false, borderColor: CHART_COLORS[idx % CHART_COLORS
+                            .length], tension: 0.3, pointRadius: 3 };
+                });
+                G.charts.prod = new Chart(canvas.getContext('2d'), {
+                    type: 'line',
+                    data: { labels: fechas.map(f => fmtDateShort(f)), datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'top' } },
+                        scales: { y: { beginAtZero: true } }
+                    }
+                });
+            });
+        }
+
+        // ---------- ALIMENTACIÓN ----------
+        async function renderAlimentacion(cont) {
+            cont.innerHTML = '<div class="loader">Cargando</div>';
+            const lotes = await dbAllLotes();
+            const lotesActivos = lotes.filter(l => l.estado === 'activo');
+            if (!lotesActivos.length) {
+                cont.innerHTML = '<div class="empty-state"><i class="fas fa-wheat-awn"></i>No hay lotes activos.</div>';
+                return;
+            }
+
+            const options = lotesActivos.map(l =>
+                `<option value="${l.id}">${escHtml(l.nombre)} (${escHtml(l.codigo)})</option>`
+            ).join('');
+
+            let allConsumos = [];
+            for (const l of lotesActivos) {
+                const cons = await dbConsumosByLote(l.id);
+                allConsumos = allConsumos.concat(cons);
+            }
+            allConsumos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+            cont.innerHTML = `
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="fas fa-plus-circle"></i> Registrar consumo de alimento</div></div>
+                    <div class="form-row c2">
+                        <div class="form-group"><label>Lote</label><select id="aliLote">${options}</select></div>
+                        <div class="form-group"><label>Fecha</label><input type="date" id="aliFecha" value="${todayISO()}" /></div>
+                    </div>
+                    <div class="form-row c2">
+                        <div class="form-group"><label>Cantidad (kg)</label><input type="number" id="aliCant" step="0.01" min="0.01" value="1" /></div>
+                        <div class="form-group"><label>Tipo de alimento</label><input id="aliTipo" placeholder="Ej: Postura" /></div>
+                    </div>
+                    <button class="btn btn-primary" id="btnRegAli"><i class="fas fa-save"></i> Registrar consumo</button>
+                    <div id="aliMsg"></div>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i class="fas fa-list"></i> Últimos consumos</div></div>
+                        <div id="aliList"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i class="fas fa-balance-scale"></i> Conversión alimenticia</div></div>
+                        <div id="aliConversion"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="fas fa-chart-bar"></i> Consumo diario por lote (kg) - últimos 15 días</div></div>
+                    <div class="chart-wrap"><canvas id="aliChart"></canvas></div>
+                </div>
+            `;
+
+            $('btnRegAli').onclick = async () => {
+                const lote_id = $('aliLote').value;
+                const fecha = $('aliFecha').value;
+                const cantidad_kg = parseFloat($('aliCant').value);
+                const tipo_alimento = $('aliTipo').value.trim();
+                if (!lote_id || !fecha || isNaN(cantidad_kg) || cantidad_kg <= 0 || !tipo_alimento) {
+                    showMsg('aliMsg', 'Todos los campos son obligatorios', 'error');
+                    return;
+                }
+                try {
+                    await dbCreateConsumo({ lote_id: parseInt(lote_id), fecha, cantidad_kg, tipo_alimento });
+                    showMsg('aliMsg', 'Consumo registrado', 'success');
+                    await renderTab('alimentacion', cont);
+                } catch (e) { showMsg('aliMsg', e.message, 'error'); }
+            };
+
+            // Lista
+            const loteMap = {};
+            lotes.forEach(l => loteMap[l.id] = l.nombre);
+            const listEl = $('aliList');
+            if (!allConsumos.length) {
+                listEl.innerHTML = '<div class="empty-state"><i class="fas fa-wheat-awn"></i>Sin registros</div>';
+            } else {
+                listEl.innerHTML = allConsumos.slice(0, 20).map(c => `
+                    <div class="order-card blue">
+                        <div><strong>${Number(c.cantidad_kg).toFixed(2)} kg</strong> · ${escHtml(c.tipo_alimento)}</div>
+                        <div class="meta">${loteMap[c.lote_id] || 'N/A'} · ${fmtDateShort(c.fecha)}</div>
+                    </div>
+                `).join('');
+            }
+
+            // Conversión
+            const convEl = $('aliConversion');
+            let convHtml = '';
+            for (const l of lotesActivos) {
+                const cons = allConsumos.filter(c => c.lote_id === l.id);
+                const totalKg = cons.reduce((s, c) => s + c.cantidad_kg, 0);
+                const prods = await dbProduccionesByLote(l.id);
+                const totalHv = prods.reduce((s, p) => s + p.cantidad_huevos, 0);
+                const totalDocenas = totalHv / 12;
+                const conv = totalDocenas > 0 ? (totalKg / totalDocenas).toFixed(3) : 'N/A';
+                convHtml += `<div class="kpi-bar"><i class="fas fa-balance-scale" style="color:#2c7da0;"></i> <span>${escHtml(l.nombre)}: <strong>${conv} kg/docena</strong> (${Number(totalKg).toFixed(1)} kg, ${totalHv} hv)</span></div>`;
+            }
+            convEl.innerHTML = convHtml || '<div class="empty-state" style="padding:1rem;">Sin datos suficientes</div>';
+
+            // Chart
+            requestAnimationFrame(() => {
+                const canvas = $('aliChart');
+                if (!canvas) return;
+                destroyChart('ali');
+                const fechas = lastNDays(15);
+                const datasets = lotesActivos.map((l, idx) => {
+                    const data = fechas.map(f => {
+                        return allConsumos.filter(c => c.lote_id === l.id && c.fecha === f)
+                            .reduce((s, c) => s + c.cantidad_kg, 0);
+                    });
+                    return {
+                        label: l.nombre,
+                        data,
+                        backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] + 'bb',
+                        borderColor: CHART_COLORS[idx % CHART_COLORS.length],
+                        borderWidth: 1,
+                    };
+                });
+                G.charts.ali = new Chart(canvas.getContext('2d'), {
+                    type: 'bar',
+                    data: { labels: fechas.map(f => fmtDateShort(f)), datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'top' } },
+                        scales: { y: { beginAtZero: true, ticks: { callback: (v) => v + ' kg' } } }
+                    }
+                });
+            });
+        }
+
+        // ---------- SANIDAD ----------
+        async function renderSanidad(cont) {
+            cont.innerHTML = '<div class="loader">Cargando</div>';
+            const lotes = await dbAllLotes();
+            const lotesActivos = lotes.filter(l => l.estado === 'activo');
+            if (!lotesActivos.length) {
+                cont.innerHTML = '<div class="empty-state"><i class="fas fa-stethoscope"></i>No hay lotes activos.</div>';
+                return;
+            }
+
+            const options = lotesActivos.map(l =>
+                `<option value="${l.id}">${escHtml(l.nombre)} (${escHtml(l.codigo)})</option>`
+            ).join('');
+
+            let allSan = [];
+            for (const l of lotesActivos) {
+                const san = await dbSanitariosByLote(l.id);
+                allSan = allSan.concat(san);
+            }
+            allSan.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+            cont.innerHTML = `
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="fas fa-plus-circle"></i> Registrar evento sanitario</div></div>
+                    <div class="form-row c2">
+                        <div class="form-group"><label>Lote</label><select id="sanLote">${options}</select></div>
+                        <div class="form-group"><label>Fecha</label><input type="date" id="sanFecha" value="${todayISO()}" /></div>
+                    </div>
+                    <div class="form-row c2">
+                        <div class="form-group"><label>Tipo</label>
+                            <select id="sanTipo">
+                                <option value="vacunacion">Vacunación</option>
+                                <option value="medicamento">Medicamento</option>
+                                <option value="muerte">Muerte</option>
+                                <option value="descarte">Descarte</option>
+                                <option value="revision">Revisión</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Cantidad (muerte/descarte)</label><input type="number" id="sanCant" min="0" value="0" /></div>
+                    </div>
+                    <div class="form-group"><label>Descripción / Producto usado</label><textarea id="sanDesc" rows="2" placeholder="Detalles del evento..."></textarea></div>
+                    <button class="btn btn-primary" id="btnRegSan"><i class="fas fa-save"></i> Registrar evento</button>
+                    <div id="sanMsg"></div>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i class="fas fa-list"></i> Últimos eventos</div></div>
+                        <div id="sanList"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i class="fas fa-skull" style="color:#9b2a1a;"></i> Mortalidad por lote</div></div>
+                        <div id="sanMortalidad"></div>
+                    </div>
+                </div>
+            `;
+
+            $('btnRegSan').onclick = async () => {
+                const lote_id = $('sanLote').value;
+                const fecha = $('sanFecha').value;
+                const tipo = $('sanTipo').value;
+                const cantidad = parseInt($('sanCant').value) || 0;
+                const descripcion = $('sanDesc').value.trim();
+                if (!lote_id || !fecha || !tipo) {
+                    showMsg('sanMsg', 'Lote, fecha y tipo son obligatorios', 'error');
+                    return;
+                }
+                try {
+                    await dbCreateSanitario({ lote_id: parseInt(lote_id), fecha, tipo, cantidad, descripcion });
+                    showMsg('sanMsg', 'Evento registrado', 'success');
+                    await renderTab('sanidad', cont);
+                } catch (e) { showMsg('sanMsg', e.message, 'error'); }
+            };
+
+            const loteMap = {};
+            lotes.forEach(l => loteMap[l.id] = l.nombre);
+            const listEl = $('sanList');
+            if (!allSan.length) {
+                listEl.innerHTML = '<div class="empty-state"><i class="fas fa-stethoscope"></i>Sin eventos</div>';
+            } else {
+                const colorMap = { vacunacion: 'green', medicamento: 'blue', muerte: 'red', descarte: 'red',
+                    revision: '' };
+                listEl.innerHTML = allSan.slice(0, 20).map(s => `
+                    <div class="order-card ${colorMap[s.tipo] || ''}">
+                        <div><strong>${escHtml(s.tipo)}</strong>${s.cantidad ? ' · Cantidad: <strong>' + s.cantidad + '</strong>' : ''}</div>
+                        ${s.descripcion ? `<div style="font-size:0.85rem;color:#8a7a6a;font-style:italic;">${escHtml(s.descripcion)}</div>` : ''}
+                        <div class="meta">${loteMap[s.lote_id] || 'N/A'} · ${fmtDateShort(s.fecha)}</div>
+                    </div>
+                `).join('');
+            }
+
+            // Mortalidad
+            const mortEl = $('sanMortalidad');
+            let mortHtml = '';
+            lotesActivos.forEach(l => {
+                const muertes = allSan.filter(s => s.lote_id === l.id && s.tipo === 'muerte')
+                    .reduce((s, e) => s + (e.cantidad || 0), 0);
+                const descartes = allSan.filter(s => s.lote_id === l.id && s.tipo === 'descarte')
+                    .reduce((s, e) => s + (e.cantidad || 0), 0);
+                const pct = l.cantidad_inicial > 0 ? ((muertes / l.cantidad_inicial) * 100).toFixed(2) : '0.00';
+                mortHtml += `<div class="kpi-bar"><i class="fas fa-dove" style="color:#7a5a4a;"></i> <span><strong>${escHtml(l.nombre)}</strong>: ${muertes} muertes (${pct}%) / ${descartes} descartes</span></div>`;
+            });
+            mortEl.innerHTML = mortHtml || '<div class="empty-state" style="padding:1rem;">Sin eventos de mortalidad</div>';
+        }
+
+        // ---------- COSTOS ----------
+        async function renderCostos(cont) {
+            cont.innerHTML = '<div class="loader">Cargando</div>';
+            const lotes = await dbAllLotes();
+            const lotesActivos = lotes.filter(l => l.estado === 'activo');
+            if (!lotesActivos.length) {
+                cont.innerHTML = '<div class="empty-state"><i class="fas fa-coins"></i>No hay lotes activos.</div>';
+                return;
+            }
+
+            const options = lotesActivos.map(l =>
+                `<option value="${l.id}">${escHtml(l.nombre)} (${escHtml(l.codigo)})</option>`
+            ).join('');
+
+            let allCostos = [];
+            for (const l of lotesActivos) {
+                const c = await dbCostosByLote(l.id);
+                allCostos = allCostos.concat(c);
+            }
+            allCostos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+            cont.innerHTML = `
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="fas fa-plus-circle"></i> Registrar costo</div></div>
+                    <div class="form-row c2">
+                        <div class="form-group"><label>Lote</label><select id="cosLote">${options}</select></div>
+                        <div class="form-group"><label>Fecha</label><input type="date" id="cosFecha" value="${todayISO()}" /></div>
+                    </div>
+                    <div class="form-row c2">
+                        <div class="form-group"><label>Concepto</label><input id="cosConcepto" placeholder="Ej: Alimento" /></div>
+                        <div class="form-group"><label>Monto ($)</label><input type="number" id="cosMonto" step="100" min="0" value="0" /></div>
+                    </div>
+                    <button class="btn btn-primary" id="btnRegCosto"><i class="fas fa-save"></i> Registrar costo</button>
+                    <div id="cosMsg"></div>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i class="fas fa-list"></i> Últimos costos</div></div>
+                        <div id="cosList"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i class="fas fa-calculator"></i> Costo por huevo</div></div>
+                        <div id="costoHuevoList"></div>
+                    </div>
+                </div>
+            `;
+
+            $('btnRegCosto').onclick = async () => {
+                const lote_id = $('cosLote').value;
+                const fecha = $('cosFecha').value;
+                const concepto = $('cosConcepto').value.trim();
+                const monto = parseFloat($('cosMonto').value);
+                if (!lote_id || !fecha || !concepto || isNaN(monto) || monto <= 0) {
+                    showMsg('cosMsg', 'Todos los campos son obligatorios', 'error');
+                    return;
+                }
+                try {
+                    await dbCreateCosto({ lote_id: parseInt(lote_id), fecha, concepto, monto });
+                    showMsg('cosMsg', 'Costo registrado', 'success');
+                    await renderTab('costos', cont);
+                } catch (e) { showMsg('cosMsg', e.message, 'error'); }
+            };
+
+            const loteMap = {};
+            lotes.forEach(l => loteMap[l.id] = l.nombre);
+            const listEl = $('cosList');
+            if (!allCostos.length) {
+                listEl.innerHTML = '<div class="empty-state"><i class="fas fa-coins"></i>Sin costos</div>';
+            } else {
+                listEl.innerHTML = allCostos.slice(0, 20).map(c => `
+                    <div class="order-card">
+                        <div><strong>${escHtml(c.concepto)}</strong> · <span style="color:#b8712a;font-weight:600;">${pesos(c.monto)}</span></div>
+                        <div class="meta">${loteMap[c.lote_id] || 'N/A'} · ${fmtDateShort(c.fecha)}</div>
+                    </div>
+                `).join('');
+            }
+
+            // Costo por huevo
+            const chEl = $('costoHuevoList');
+            let chHtml =
+                '<div class="table-wrap"><table class="table"><thead><tr><th>Lote</th><th>Total costos</th><th>Huevos</th><th>$/huevo</th><th>$/docena</th></tr></thead><tbody>';
+            for (const l of lotesActivos) {
+                const costos = allCostos.filter(c => c.lote_id === l.id);
+                const totalC = costos.reduce((s, c) => s + c.monto, 0);
+                const prods = await dbProduccionesByLote(l.id);
+                const totalH = prods.reduce((s, p) => s + p.cantidad_huevos, 0);
+                const ch = totalH > 0 ? (totalC / totalH).toFixed(2) : 'N/A';
+                const cd = totalH > 0 ? ((totalC / totalH) * 12).toFixed(0) : 'N/A';
+                chHtml +=
+                    `<tr><td>${escHtml(l.nombre)}</td><td>${pesos(totalC)}</td><td>${totalH}</td><td>${ch !== 'N/A' ? pesos(ch) : ch}</td><td>${cd !== 'N/A' ? pesos(cd) : cd}</td></tr>`;
+            }
+            chHtml += '</tbody></table></div>';
+            chEl.innerHTML = chHtml;
+        }
+
+        // ---------- INVENTARIO ----------
+        async function renderInventario(cont) {
+            cont.innerHTML = '<div class="loader">Cargando</div>';
+            const inventario = await dbInventarioAlimento();
+            const { data: movs } = await _sb.from('movimientos_alimento').select('*').order('fecha', { ascending: false })
+                .limit(25);
+
+            cont.innerHTML = `
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="fas fa-boxes-stacked"></i> Stock actual de alimento</div></div>
+                    <div id="invStockList"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="fas fa-plus-circle"></i> Actualizar / Agregar stock</div></div>
+                    <div class="form-row c2">
+                        <div class="form-group"><label>Tipo de alimento</label><input id="invTipo" placeholder="Ej: Postura" /></div>
+                        <div class="form-group"><label>Stock (kg)</label><input type="number" id="invStock" step="0.1" min="0" value="0" /></div>
+                    </div>
+                    <button class="btn btn-primary" id="btnInvActualizar"><i class="fas fa-save"></i> Actualizar stock</button>
+                    <div id="invMsg"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="fas fa-history"></i> Movimientos recientes</div></div>
+                    <div id="invMovimientos"></div>
+                </div>
+            `;
+
+            const stockEl = $('invStockList');
+            if (!inventario.length) {
+                stockEl.innerHTML = '<div class="empty-state"><i class="fas fa-boxes-stacked"></i>Sin registros</div>';
+            } else {
+                stockEl.innerHTML = inventario.map(i => {
+                    const color = i.stock_kg < 10 ? 'red' : (i.stock_kg < 50 ? '' : 'green');
+                    return `<div class="order-card ${color}">
+                        <div><strong>${escHtml(i.tipo_alimento)}</strong> · <span style="font-weight:700;font-size:1.1rem;">${Number(i.stock_kg).toFixed(1)} kg</span>${i.stock_kg < 10 ? ' <span class="badge badge-inactive">Stock bajo</span>' : ''}</div>
+                        <div class="meta">Actualizado: ${fmtDate(i.fecha_actualizacion)}</div>
+                    </div>`;
+                }).join('');
+            }
+
+            $('btnInvActualizar').onclick = async () => {
+                const tipo = $('invTipo').value.trim();
+                const stock = parseFloat($('invStock').value);
+                if (!tipo || isNaN(stock) || stock < 0) {
+                    showMsg('invMsg', 'Tipo y stock válido son obligatorios', 'error');
+                    return;
+                }
+                try {
+                    await dbUpdateInventarioAlimento(tipo, stock);
+                    await dbRegistrarMovimientoAlimento(tipo, stock, 'Actualización manual');
+                    showMsg('invMsg', 'Stock actualizado', 'success');
+                    await renderTab('inventario', cont);
+                } catch (e) { showMsg('invMsg', e.message, 'error'); }
+            };
+
+            const movEl = $('invMovimientos');
+            if (!movs || !movs.length) {
+                movEl.innerHTML = '<div class="empty-state"><i class="fas fa-history"></i>Sin movimientos</div>';
+            } else {
+                movEl.innerHTML = movs.map(m => `
+                    <div class="order-card blue">
+                        <div><strong>${escHtml(m.tipo_alimento)}</strong> · ${Number(m.cantidad_kg).toFixed(1)} kg · <em>${escHtml(m.motivo || 'N/A')}</em></div>
+                        <div class="meta">${fmtDate(m.fecha)}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // ---------- REPORTES ----------
+        async function renderReportes(cont) {
+            cont.innerHTML = `
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="fas fa-download"></i> Exportar datos</div></div>
+                    <div style="display:flex;flex-wrap:wrap;gap:0.75rem;">
+                        <button class="btn btn-primary btn-sm" id="expLotes"><i class="fas fa-layer-group"></i> CSV Lotes</button>
+                        <button class="btn btn-primary btn-sm" id="expProduccion"><i class="fas fa-egg"></i> CSV Producción</button>
+                        <button class="btn btn-primary btn-sm" id="expConsumos"><i class="fas fa-wheat-awn"></i> CSV Consumos</button>
+                        <button class="btn btn-primary btn-sm" id="expSanidad"><i class="fas fa-stethoscope"></i> CSV Sanidad</button>
+                        <button class="btn btn-primary btn-sm" id="expCostos"><i class="fas fa-coins"></i> CSV Costos</button>
+                    </div>
+                    <div id="reportMsg" class="mt-1"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="fas fa-chart-pie"></i> Resumen general (últimos 30 días)</div></div>
+                    <div id="resumenGeneral"><div class="loader">Cargando</div></div>
+                </div>
+            `;
+
+            const csvDownload = (csv, filename) => {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+                a.download = filename;
+                a.click();
+            };
+
+            $('expLotes').onclick = async () => {
+                const { data } = await _sb.from('lotes').select('*');
+                if (!data || !data.length) { alert('No hay datos'); return; }
+                let csv = 'Código,Nombre,Fecha ingreso,Procedencia,Raza,Cantidad,Estado\n';
+                data.forEach(l => {
+                    csv +=
+                        `"${l.codigo}","${l.nombre}","${l.fecha_ingreso}","${l.procedencia||''}","${l.raza||''}",${l.cantidad_inicial},"${l.estado}"\n`;
+                });
+                csvDownload(csv, 'lotes.csv');
+            };
+            $('expProduccion').onclick = async () => {
+                const { data } = await _sb.from('produccion_diaria').select('*');
+                if (!data || !data.length) { alert('No hay datos'); return; }
+                let csv = 'Lote ID,Fecha,Cantidad,Clasificación\n';
+                data.forEach(p => {
+                    csv += `${p.lote_id},"${p.fecha}",${p.cantidad_huevos},"${p.clasificacion||''}"\n`;
+                });
+                csvDownload(csv, 'produccion.csv');
+            };
+            $('expConsumos').onclick = async () => {
+                const { data } = await _sb.from('consumos_alimento').select('*');
+                if (!data || !data.length) { alert('No hay datos'); return; }
+                let csv = 'Lote ID,Fecha,Cantidad (kg),Tipo\n';
+                data.forEach(c => {
+                    csv += `${c.lote_id},"${c.fecha}",${c.cantidad_kg},"${c.tipo_alimento}"\n`;
+                });
+                csvDownload(csv, 'consumos.csv');
+            };
+            $('expSanidad').onclick = async () => {
+                const { data } = await _sb.from('eventos_sanitarios').select('*');
+                if (!data || !data.length) { alert('No hay datos'); return; }
+                let csv = 'Lote ID,Fecha,Tipo,Cantidad,Descripción\n';
+                data.forEach(s => {
+                    csv +=
+                        `${s.lote_id},"${s.fecha}","${s.tipo}",${s.cantidad||0},"${(s.descripcion||'').replace(/"/g,"'")}"\n`;
+                });
+                csvDownload(csv, 'sanidad.csv');
+            };
+            $('expCostos').onclick = async () => {
+                const { data } = await _sb.from('costos_lote').select('*');
+                if (!data || !data.length) { alert('No hay datos'); return; }
+                let csv = 'Lote ID,Fecha,Concepto,Monto\n';
+                data.forEach(c => {
+                    csv +=
+                    `${c.lote_id},"${c.fecha}","${c.concepto.replace(/"/g,"'")}",${c.monto}\n`;
+                });
+                csvDownload(csv, 'costos.csv');
+            };
+
+            // Resumen 30 días
+            try {
+                const lotes = await dbAllLotes();
+                const hace30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+                let html =
+                    '<div class="table-wrap"><table class="table"><thead><tr><th>Lote</th><th>Estado</th><th>Huevos (30d)</th><th>Consumo (kg)</th><th>Mortalidad</th><th>Costo total</th><th>$/huevo</th></tr></thead><tbody>';
+                for (const l of lotes) {
+                    const prods = (await dbProduccionesByLote(l.id)).filter(p => new Date(p.fecha) >= hace30);
+                    const totalH = prods.reduce((s, p) => s + p.cantidad_huevos, 0);
+                    const consumos = (await dbConsumosByLote(l.id)).filter(c => new Date(c.fecha) >= hace30);
+                    const totalKg = consumos.reduce((s, c) => s + c.cantidad_kg, 0);
+                    const san = await dbSanitariosByLote(l.id);
+                    const muertes = san.filter(s => s.tipo === 'muerte').reduce((s, e) => s + (e.cantidad || 0), 0);
+                    const costos = await dbCostosByLote(l.id);
+                    const totalC = costos.reduce((s, c) => s + c.monto, 0);
+                    const cph = totalH > 0 ? pesos((totalC / totalH).toFixed(2)) : 'N/A';
+                    html += `<tr>
+                        <td>${escHtml(l.nombre)}</td>
+                        <td><span class="badge badge-${l.estado === 'activo' ? 'active' : 'inactive'}">${l.estado}</span></td>
+                        <td>${totalH}</td>
+                        <td>${Number(totalKg).toFixed(1)}</td>
+                        <td>${muertes}</td>
+                        <td>${pesos(totalC)}</td>
+                        <td>${cph}</td>
+                    </tr>`;
+                }
+                html += '</tbody></table></div>';
+                $('resumenGeneral').innerHTML = html;
+            } catch (e) {
+                $('resumenGeneral').innerHTML =
+                    `<div class="alert alert-error">Error al cargar resumen: ${escHtml(e.message)}</div>`;
+            }
+        }
+
+        // ================================================================
+        //   MODALES
+        // ================================================================
+        function initModals() {
+            $('closeSupportBtn').onclick = () => $('supportModal').classList.add('hidden');
+            $('supportModal').onclick = (e) => { if (e.target === $('supportModal')) $('supportModal').classList.add(
+                    'hidden'); };
+            $('forgotModal').onclick = (e) => { if (e.target === $('forgotModal')) $('forgotModal').classList.add(
+                    'hidden'); };
+            $('newPasswordModal').onclick = (e) => { if (e.target === $('newPasswordModal')) $('newPasswordModal')
+                .classList.add('hidden'); };
+        }
+
+        // ================================================================
+        //   BOOT
+        // ================================================================
+        (async function boot() {
+            initModals();
+
+            // Recuperación de contraseña desde token
+            const hash = new URLSearchParams(window.location.hash.substring(1));
+            const token = hash.get('access_token');
+            const type = hash.get('type');
+            if (token && type === 'recovery') {
+                $('newPasswordModal').classList.remove('hidden');
+                $('newPassword').value = '';
+                $('confirmPassword').value = '';
+                $('newPassMsg').innerHTML = '';
+                window.location.hash = '';
+            }
+
+            // Logo file input
+            $('logoFileInput').onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (file.size > 3 * 1024 * 1024) { alert('El logo debe pesar menos de 3 MB.'); return; }
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    lsSet('granjaLogo', ev.target.result);
+                    setLogoEl($('adminTopLogo'));
+                    const authIcon = document.querySelector('.auth-brand .logo-icon');
+                    if (authIcon) authIcon.innerHTML =
+                        `<img src="${escAttr(ev.target.result)}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;display:block;margin:0 auto;" />`;
+                };
+                reader.readAsDataURL(file);
+            };
+
+            const sessionRes = await _sb.auth.getSession();
+            if (!sessionRes.data.session) {
+                $('authPage').style.display = 'flex';
+                initAuthPage();
+                return;
+            }
+
+            const session = sessionRes.data.session;
+            try {
+                G.userId = session.user.id;
+                const profile = await dbProfile(G.userId);
+                G.esAdmin = profile.es_admin || false;
+                G.nombre = profile.nombre || session.user.email || 'Usuario';
+                G.email = profile.email || session.user.email || '';
+
+                if (!G.esAdmin) {
+                    alert('Acceso restringido a administradores. Contacta al soporte.');
+                    await _sb.auth.signOut();
+                    location.reload();
+                    return;
+                }
+            } catch (e) {
+                console.error('Error cargando perfil:', e);
+                await _sb.auth.signOut();
+                $('authPage').style.display = 'flex';
+                initAuthPage();
+                showMsg('loginErr', 'Error al cargar perfil. Por favor inicia sesión nuevamente.', 'warn');
+                return;
+            }
+
+            $('authPage').style.display = 'none';
+            $('adminPage').classList.add('active');
+            await initAdminPage();
+
+            _sb.auth.onAuthStateChange((event) => {
+                if (event === 'SIGNED_OUT') location.reload();
+            });
+        })();
+    </script>
+
 </body>
 </html>
