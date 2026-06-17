@@ -47,10 +47,11 @@ create table if not exists public.galpones (
   id           bigserial primary key,
   codigo       text unique not null,
   nombre       text not null,
-  capacidad    integer not null default 0,
+  capacidad    integer not null default 0 check (capacidad >= 0),
   descripcion  text,
   activo       boolean default true,
-  created_at   timestamptz default now()
+  created_at   timestamptz default now(),
+  updated_at   timestamptz default now()
 );
 create index if not exists idx_galpones_activo on public.galpones(activo);
 alter table public.galpones enable row level security;
@@ -67,12 +68,12 @@ create table if not exists public.lotes (
   fecha_ingreso    date not null,
   raza             text default 'Coturnix japonica',
   cantidad_inicial integer not null check (cantidad_inicial > 0),
-  machos           integer default 0,
-  hembras          integer default 0,
+  machos           integer default 0 check (machos >= 0),
+  hembras          integer default 0 check (hembras >= 0),
   procedencia      text,
   estado           text default 'activo' check (estado in ('activo','inactivo','vendido','descartado')),
-  semanas_vida     integer default 0,
-  peso_promedio_g  numeric(6,2),
+  semanas_vida     integer default 0 check (semanas_vida >= 0),
+  peso_promedio_g  numeric(6,2) check (peso_promedio_g >= 0),
   created_by       uuid references auth.users(id),
   created_at       timestamptz default now(),
   updated_at       timestamptz default now()
@@ -91,16 +92,21 @@ create table if not exists public.produccion_diaria (
   lote_id           bigint references public.lotes(id) on delete cascade not null,
   fecha             date not null,
   huevos_total      integer not null default 0 check (huevos_total >= 0),
-  huevos_fertiles   integer default 0,
-  huevos_comerciales integer default 0,
-  huevos_descarte   integer default 0,
-  huevos_rotos      integer default 0,
+  huevos_fertiles   integer default 0 check (huevos_fertiles >= 0),
+  huevos_comerciales integer default 0 check (huevos_comerciales >= 0),
+  huevos_descarte   integer default 0 check (huevos_descarte >= 0),
+  huevos_rotos      integer default 0 check (huevos_rotos >= 0),
   clasificacion     text default 'sin clasificar',
   porcentaje_postura numeric(5,2),
   observaciones     text,
   registrado_por    uuid references auth.users(id),
   created_at        timestamptz default now(),
-  unique(lote_id, fecha, clasificacion)
+  unique(lote_id, fecha, clasificacion),
+  -- Restricciones de integridad semántica
+  constraint chk_fertiles_le_total check (huevos_fertiles <= huevos_total),
+  constraint chk_comerciales_le_total check (huevos_comerciales <= huevos_total),
+  constraint chk_descarte_le_total check (huevos_descarte <= huevos_total),
+  constraint chk_rotos_le_total check (huevos_rotos <= huevos_total)
 );
 create index if not exists idx_prod_lote_fecha on public.produccion_diaria(lote_id, fecha desc);
 create index if not exists idx_prod_fecha      on public.produccion_diaria(fecha desc);
@@ -116,15 +122,19 @@ create table if not exists public.incubacion (
   lote_origen_codigo  text,
   fecha_ingreso       date not null,
   fecha_salida        date,
-  huevos_ingresados   integer not null default 0,
-  huevos_fertiles     integer default 0,
-  nacidos             integer default 0,
-  muertos_incubacion  integer default 0,
+  huevos_ingresados   integer not null default 0 check (huevos_ingresados >= 0),
+  huevos_fertiles     integer default 0 check (huevos_fertiles >= 0),
+  nacidos             integer default 0 check (nacidos >= 0),
+  muertos_incubacion  integer default 0 check (muertos_incubacion >= 0),
   temperatura_c       numeric(4,1),
   humedad_pct         numeric(4,1),
   estado              text default 'en_proceso' check (estado in ('en_proceso','eclosionado','cancelado')),
   observaciones       text,
-  created_at          timestamptz default now()
+  created_at          timestamptz default now(),
+  updated_at          timestamptz default now(),
+  -- Restricciones de integridad
+  constraint chk_fertiles_le_ingresados check (huevos_fertiles <= huevos_ingresados),
+  constraint chk_nacidos_le_fertiles check (nacidos <= huevos_fertiles)
 );
 create index if not exists idx_incub_lote  on public.incubacion(lote_id);
 create index if not exists idx_incub_fecha on public.incubacion(fecha_ingreso desc);
@@ -140,12 +150,13 @@ create table if not exists public.consumos_alimento (
   fecha          date not null,
   cantidad_kg    numeric(8,3) not null check (cantidad_kg > 0),
   tipo_alimento  text not null,
-  costo_kg       numeric(10,2) default 0,
+  costo_kg       numeric(10,2) default 0 check (costo_kg >= 0),
   proveedor      text,
   observaciones  text,
   created_at     timestamptz default now()
 );
 create index if not exists idx_consumos_lote_fecha on public.consumos_alimento(lote_id, fecha desc);
+create index if not exists idx_consumos_fecha       on public.consumos_alimento(fecha desc);
 alter table public.consumos_alimento enable row level security;
 create policy "admin_consumos" on public.consumos_alimento for all using (
   exists(select 1 from public.usuarios u where u.user_id = auth.uid() and u.es_admin = true)
@@ -157,17 +168,18 @@ create table if not exists public.eventos_sanitarios (
   lote_id      bigint references public.lotes(id) on delete cascade not null,
   fecha        date not null,
   tipo         text not null check (tipo in ('vacunacion','medicamento','muerte','descarte','revision','desinfeccion','otro')),
-  cantidad     integer default 0,
+  cantidad     integer default 0 check (cantidad >= 0),
   producto     text,
   dosis        text,
   via_admin    text,
   descripcion  text,
-  costo        numeric(10,2) default 0,
+  costo        numeric(10,2) default 0 check (costo >= 0),
   veterinario  text,
   created_at   timestamptz default now()
 );
 create index if not exists idx_san_lote_fecha on public.eventos_sanitarios(lote_id, fecha desc);
 create index if not exists idx_san_tipo       on public.eventos_sanitarios(tipo);
+create index if not exists idx_san_fecha      on public.eventos_sanitarios(fecha desc);
 alter table public.eventos_sanitarios enable row level security;
 create policy "admin_sanitarios" on public.eventos_sanitarios for all using (
   exists(select 1 from public.usuarios u where u.user_id = auth.uid() and u.es_admin = true)
@@ -223,7 +235,7 @@ create table if not exists public.inventario_alimento (
   tipo_alimento       text unique not null,
   stock_kg            numeric(10,3) not null default 0 check (stock_kg >= 0),
   stock_minimo_kg     numeric(10,3) default 50,
-  costo_kg            numeric(10,2) default 0,
+  costo_kg            numeric(10,2) default 0 check (costo_kg >= 0),
   proveedor           text,
   fecha_actualizacion timestamptz default now()
 );
@@ -236,7 +248,7 @@ create policy "admin_inventario" on public.inventario_alimento for all using (
 create table if not exists public.movimientos_alimento (
   id            bigserial primary key,
   tipo_alimento text not null,
-  cantidad_kg   numeric(10,3) not null,
+  cantidad_kg   numeric(10,3) not null check (cantidad_kg >= 0),
   tipo_mov      text default 'ingreso' check (tipo_mov in ('ingreso','salida','ajuste')),
   motivo        text,
   fecha         timestamptz default now()
@@ -269,13 +281,28 @@ left join public.costos_lote        c   on c.lote_id = l.id
 left join public.consumos_alimento  con on con.lote_id = l.id
 group by l.id, l.codigo, l.nombre, l.estado, l.cantidad_inicial, l.fecha_ingreso;
 
--- =================== TRIGGER: updated_at lotes ===================
+-- =================== TRIGGER: updated_at ===================
 create or replace function public.set_updated_at()
 returns trigger language plpgsql as $$
-begin new.updated_at = now(); return new; end;$$;
+begin
+  new.updated_at = now();
+  return new;
+end;$$;
 
 drop trigger if exists trg_lotes_upd on public.lotes;
 create trigger trg_lotes_upd before update on public.lotes
+  for each row execute function public.set_updated_at();
+
+drop trigger if exists trg_galpones_upd on public.galpones;
+create trigger trg_galpones_upd before update on public.galpones
+  for each row execute function public.set_updated_at();
+
+drop trigger if exists trg_incubacion_upd on public.incubacion;
+create trigger trg_incubacion_upd before update on public.incubacion
+  for each row execute function public.set_updated_at();
+
+drop trigger if exists trg_usuarios_upd on public.usuarios;
+create trigger trg_usuarios_upd before update on public.usuarios
   for each row execute function public.set_updated_at();
 
 -- =================== TRIGGER: perfil automático ===================
@@ -294,9 +321,10 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
--- =================== FUNCIÓN RPC: dashboard_kpis (evita N+1) ===================
+-- =================== FUNCIÓN RPC: dashboard_kpis ===================
 create or replace function public.fn_dashboard_kpis(p_fecha date default current_date)
-returns json language plpgsql security definer as $$
+returns json language plpgsql security definer set search_path = public
+as $$
 declare
   v_result json;
 begin
@@ -319,7 +347,8 @@ end;$$;
 
 -- =================== FUNCIÓN RPC: produccion_ultimos_dias ===================
 create or replace function public.fn_produccion_dias(p_dias int default 7)
-returns table(fecha date, total_huevos bigint) language sql security definer as $$
+returns table(fecha date, total_huevos bigint) language sql security definer set search_path = public
+as $$
   select p.fecha, sum(p.huevos_total) as total_huevos
   from produccion_diaria p
   join lotes l on l.id = p.lote_id
@@ -659,9 +688,6 @@ $$;
 // ============================================================
 const SUPABASE_URL      = "https://dfzkhlclwdxrkokzbtra.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_9dkfwX7NGWw19ChZwMVF2A_cgQsdi8l";
-// NOTA: Si la anon key sigue sin funcionar, obtén la key JWT real en:
-// Supabase Dashboard → Settings → API → Project API Keys → anon/public
-// La key válida comienza con "eyJhbGci..."
 const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ============================================================
@@ -673,7 +699,7 @@ const G = {
     _loteCache: null, _loteCacheTs: 0
 };
 const CHART_COLORS = ['#b87a3a','#2d6e3a','#226688','#b03025','#5a3a8a','#c07820','#4a8a5a','#3a7a9a','#8a4a3a','#7a5a9a'];
-const CACHE_TTL = 30000; // 30 segundos de cache para lotes
+const CACHE_TTL = 30000;
 
 // ============================================================
 //  UTILS
@@ -703,11 +729,12 @@ function escAttr(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&
 function lsSet(k,v) { try { localStorage.setItem(k,v); } catch(_){} }
 function lsGet(k) { try { return localStorage.getItem(k)||null; } catch(_){ return null; } }
 
-// FIX: destroyChart — destruye solo la instancia correcta
 function destroyChart(key) {
     if (G.charts[key]) { try { G.charts[key].destroy(); } catch(_){} G.charts[key] = null; }
 }
-function destroyAllCharts() { Object.keys(G.charts).forEach(k => destroyChart(k)); }
+function destroyAllCharts() {
+    Object.keys(G.charts).forEach(k => destroyChart(k));
+}
 
 function lastNDays(n) {
     const arr = [];
@@ -751,7 +778,7 @@ function renderFooter(id) {
 }
 
 // ============================================================
-//  SUPABASE HELPERS — OPTIMIZADOS (sin N+1)
+//  SUPABASE HELPERS — OPTIMIZADOS
 // ============================================================
 async function dbLogin(email, pass) {
     const r = await _sb.auth.signInWithPassword({ email, password: pass });
@@ -759,7 +786,7 @@ async function dbLogin(email, pass) {
     return r.data.user;
 }
 
-// FIX: register con upsert seguro, manejo de rate limit
+// REGISTRO MEJORADO: sin setTimeout, con verificación
 async function dbRegister(email, pass, ud) {
     const r = await _sb.auth.signUp({ email, password: pass, options: { data: { nombre: ud.nombre } } });
     if (r.error) {
@@ -767,16 +794,29 @@ async function dbRegister(email, pass, ud) {
         throw r.error;
     }
     if (!r.data.user) throw new Error('No se pudo crear el usuario.');
-    // Esperar al trigger y luego upsert para seguridad
-    await new Promise(res => setTimeout(res, 1000));
-    await _sb.from('usuarios').upsert({
-        user_id: r.data.user.id, nombre: ud.nombre, documento: ud.documento,
-        edad: ud.edad || null, email: email, es_admin: false
+    const userId = r.data.user.id;
+    const { error: upsertError } = await _sb.from('usuarios').upsert({
+        user_id: userId,
+        nombre: ud.nombre,
+        documento: ud.documento,
+        edad: ud.edad || null,
+        email: email,
+        es_admin: false
     }, { onConflict: 'user_id' });
+    if (upsertError) {
+        await new Promise(res => setTimeout(res, 500));
+        await _sb.from('usuarios').upsert({
+            user_id: userId,
+            nombre: ud.nombre,
+            documento: ud.documento,
+            edad: ud.edad || null,
+            email: email,
+            es_admin: false
+        }, { onConflict: 'user_id' });
+    }
     return r.data.user;
 }
 
-// FIX: retry con backoff para PGRST116
 async function dbProfile(uid) {
     for (let i = 0; i < 5; i++) {
         if (i > 0) await new Promise(r => setTimeout(r, 500 * i));
@@ -787,7 +827,6 @@ async function dbProfile(uid) {
     throw new Error('Perfil no encontrado. Contacta al administrador.');
 }
 
-// FIX: Cache de lotes para evitar requests repetidas
 async function dbAllLotes(force = false) {
     const now = Date.now();
     if (!force && G._loteCache && (now - G._loteCacheTs) < CACHE_TTL) return G._loteCache;
@@ -815,14 +854,12 @@ async function dbDeleteLote(id) {
     invalidateCache();
 }
 
-// FIX: Queries por lote optimizadas con filtro de fecha donde aplica
 async function dbProduccionesByLote(loteId, limit = 200) {
     const r = await _sb.from('produccion_diaria').select('*')
         .eq('lote_id', Number(loteId)).order('fecha', { ascending: false }).limit(limit);
     if (r.error) throw r.error;
     return r.data || [];
 }
-// FIX: Query MASIVA en un solo request para dashboard (evita N+1)
 async function dbProduccionesAllLotes(loteIds) {
     if (!loteIds.length) return [];
     const r = await _sb.from('produccion_diaria').select('*').in('lote_id', loteIds).order('fecha', { ascending: false });
@@ -830,6 +867,13 @@ async function dbProduccionesAllLotes(loteIds) {
     return r.data || [];
 }
 async function dbCreateProduccion(p) {
+    const lote = await _sb.from('lotes').select('cantidad_inicial').eq('id', p.lote_id).single();
+    if (!lote.error && lote.data) {
+        const maxHuevos = Math.round(lote.data.cantidad_inicial * 1.2);
+        if (p.huevos_total > maxHuevos) {
+            throw new Error(`La producción (${p.huevos_total}) excede el máximo esperado (${maxHuevos}) para este lote.`);
+        }
+    }
     const r = await _sb.from('produccion_diaria').insert(p);
     if (r.error) throw r.error;
 }
@@ -882,7 +926,6 @@ async function dbCreateCosto(c) {
     if (r.error) throw r.error;
 }
 
-// Incubación
 async function dbIncubacionByLote(loteId) {
     const r = await _sb.from('incubacion').select('*').eq('lote_id', Number(loteId)).order('fecha_ingreso', { ascending: false });
     if (r.error) throw r.error;
@@ -902,7 +945,6 @@ async function dbUpdateIncubacion(id, upd) {
     if (r.error) throw r.error;
 }
 
-// Ventas
 async function dbAllVentas() {
     const r = await _sb.from('ventas').select('*').order('fecha', { ascending: false });
     if (r.error) throw r.error;
@@ -917,7 +959,6 @@ async function dbUpdateVenta(id, upd) {
     if (r.error) throw r.error;
 }
 
-// Galpones
 async function dbAllGalpones() {
     const r = await _sb.from('galpones').select('*').order('nombre');
     if (r.error) throw r.error;
@@ -928,7 +969,6 @@ async function dbCreateGalpon(g) {
     if (r.error) throw r.error;
 }
 
-// Inventario
 async function dbInventarioAlimento() {
     const r = await _sb.from('inventario_alimento').select('*').order('tipo_alimento');
     if (r.error) throw r.error;
@@ -1067,7 +1107,6 @@ async function initAdminPage() {
             main.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
             btn.classList.add('active');
             gid(`atab-${btn.dataset.atab}`).classList.add('active');
-            // FIX: destruir charts del tab anterior
             destroyAllCharts();
             await renderAdminTab(btn.dataset.atab);
         };
@@ -1101,12 +1140,11 @@ async function renderAdminTab(tab) {
 }
 
 // ============================================================
-//  DASHBOARD — FIX: single-pass queries, elimina N+1
+//  DASHBOARD
 // ============================================================
 async function renderDashboard(cont) {
     cont.innerHTML = '<div class="loader">Cargando dashboard...</div>';
 
-    // Cargar datos en paralelo — 2 requests totales, no N*3
     const lotes = await dbAllLotes();
     const lotesActivos = lotes.filter(l => l.estado === 'activo');
     const ids = lotesActivos.map(l => l.id);
@@ -1118,7 +1156,6 @@ async function renderDashboard(cont) {
         dbAllVentas()
     ]);
 
-    // Calcular KPIs
     const huevosHoy  = todasProd.filter(p => p.fecha === hoy).reduce((s,p) => s+p.huevos_total, 0);
     const totalAves  = lotesActivos.reduce((s,l) => s+l.cantidad_inicial, 0);
     const totalMuertes = todosSan.filter(s => s.tipo==='muerte').reduce((s,e) => s+(e.cantidad||0), 0);
@@ -1158,7 +1195,6 @@ async function renderDashboard(cont) {
                 <div id="dashVentas"></div></div>
         </div>`;
 
-    // Lotes activos
     const listEl = gid('dashLotesList');
     if (!lotesActivos.length) {
         listEl.innerHTML = '<div class="empty-state"><i class="fas fa-layer-group"></i>Sin lotes activos</div>';
@@ -1176,7 +1212,6 @@ async function renderDashboard(cont) {
         }).join('');
     }
 
-    // Top producción hoy
     const prodHoy = todasProd.filter(p => p.fecha === hoy);
     const loteMap = Object.fromEntries(lotes.map(l => [l.id, l.nombre]));
     const topEl = gid('dashTopProd');
@@ -1193,7 +1228,6 @@ async function renderDashboard(cont) {
         }).join('');
     }
 
-    // Alertas sanitarias (últimas 7 días)
     const hace7 = new Date(Date.now()-7*86400000).toISOString().slice(0,10);
     const alertas = todosSan.filter(s => s.fecha >= hace7 && ['muerte','medicamento'].includes(s.tipo));
     const alEl = gid('dashAlertas');
@@ -1207,7 +1241,6 @@ async function renderDashboard(cont) {
         ).join('');
     }
 
-    // Últimas ventas
     const ventasEl = gid('dashVentas');
     const vRecientes = allVentas.slice(0,4);
     if (!vRecientes.length) {
@@ -1220,7 +1253,6 @@ async function renderDashboard(cont) {
         ).join('');
     }
 
-    // Chart — producción últimos 7 días
     requestAnimationFrame(() => {
         const canvas = gid('dashChart'); if (!canvas) return;
         destroyChart('dash');
@@ -1236,14 +1268,13 @@ async function renderDashboard(cont) {
 }
 
 // ============================================================
-//  LOTES — FIX: parseInt en IDs, estado en select
+//  LOTES
 // ============================================================
 async function renderLotes(cont) {
     cont.innerHTML = '<div class="loader">Cargando...</div>';
     const [lotes, galpones] = await Promise.all([dbAllLotes(true), dbAllGalpones()]);
     const galponesOpts = galpones.map(g => `<option value="${g.id}">${escAttr(g.nombre)}</option>`).join('');
 
-    // Definir ANTES del innerHTML que las llama
     window.guardarLote = async (id) => {
         const nomEl = gid(`lnom_${id}`), estEl = gid(`lest_${id}`);
         if (!nomEl) return;
@@ -1326,7 +1357,7 @@ async function renderLotes(cont) {
 }
 
 // ============================================================
-//  PRODUCCIÓN — FIX: single request, colores fijos
+//  PRODUCCIÓN
 // ============================================================
 async function renderProduccion(cont) {
     cont.innerHTML = '<div class="loader">Cargando...</div>';
@@ -1391,7 +1422,6 @@ async function renderProduccion(cont) {
         } catch(e) { showMsg('prodMsg', e.message,'error'); }
     };
 
-    // Lista
     const listEl = gid('prodList');
     if (!allProds.length) {
         listEl.innerHTML = '<div class="empty-state"><i class="fas fa-egg"></i>Sin registros</div>';
@@ -1404,7 +1434,6 @@ async function renderProduccion(cont) {
         ).join('');
     }
 
-    // Resumen hoy
     const resEl = gid('prodResumen');
     let resHtml = '';
     lotesActivos.forEach(l => {
@@ -1420,7 +1449,6 @@ async function renderProduccion(cont) {
     });
     resEl.innerHTML = resHtml || '<div class="empty-state" style="padding:16px">Sin producción hoy</div>';
 
-    // Chart — FIX: colores fijos
     requestAnimationFrame(() => {
         const canvas = gid('prodChart'); if (!canvas) return;
         destroyChart('prod');
@@ -1438,7 +1466,7 @@ async function renderProduccion(cont) {
 }
 
 // ============================================================
-//  INCUBACIÓN — MÓDULO NUEVO COMPLETO
+//  INCUBACIÓN
 // ============================================================
 async function renderIncubacion(cont) {
     cont.innerHTML = '<div class="loader">Cargando...</div>';
@@ -1449,9 +1477,20 @@ async function renderIncubacion(cont) {
     window.actualizarIncubacion = async (id) => {
         const nacEl = gid(`inc_nac_${id}`), salEl = gid(`inc_sal_${id}`), fertEl = gid(`inc_fert_${id}`);
         const estEl = gid(`inc_est_${id}`);
+        const nacidos = parseInt(nacEl?.value)||0;
+        const fertiles = parseInt(fertEl?.value)||0;
+        const datosOriginales = allInc.find(i => i.id === id);
+        if (datosOriginales && fertiles > datosOriginales.huevos_ingresados) {
+            alert(`Los huevos fértiles (${fertiles}) no pueden superar los ingresados (${datosOriginales.huevos_ingresados})`);
+            return;
+        }
+        if (datosOriginales && nacidos > fertiles) {
+            alert(`Los nacidos (${nacidos}) no pueden superar los fértiles (${fertiles})`);
+            return;
+        }
         const datos = {
-            nacidos:    parseInt(nacEl?.value)||0,
-            huevos_fertiles: parseInt(fertEl?.value)||0,
+            nacidos,
+            huevos_fertiles: fertiles,
             fecha_salida: salEl?.value || null,
             estado: estEl?.value || 'en_proceso'
         };
@@ -1560,7 +1599,7 @@ async function renderIncubacion(cont) {
 }
 
 // ============================================================
-//  ALIMENTACIÓN — FIX: no async en rAF, datos precargados
+//  ALIMENTACIÓN
 // ============================================================
 async function renderAlimentacion(cont) {
     cont.innerHTML = '<div class="loader">Cargando...</div>';
@@ -1569,7 +1608,6 @@ async function renderAlimentacion(cont) {
     if (!lotesActivos.length) { cont.innerHTML = '<div class="card"><div class="empty-state"><i class="fas fa-wheat-awn"></i>No hay lotes activos.</div></div>'; return; }
 
     const ids = lotesActivos.map(l => l.id);
-    // FIX: ambos requests en paralelo, no secuencial
     const [allConsumos, allProds] = await Promise.all([
         dbConsumoAllLotes(ids),
         dbProduccionesAllLotes(ids)
@@ -1630,7 +1668,6 @@ async function renderAlimentacion(cont) {
         ).join('');
     }
 
-    // Conversión alimenticia — datos ya cargados, sin await
     const convEl = gid('aliConversion');
     convEl.innerHTML = lotesActivos.map(l => {
         const cons = allConsumos.filter(c => c.lote_id===l.id);
@@ -1645,7 +1682,6 @@ async function renderAlimentacion(cont) {
             <div style="font-size:.78rem;color:#7a5f44">${Number(totalKg).toFixed(1)} kg consumidos · Costo/huevo: ${cphv}</div></div></div>`;
     }).join('') || '<div class="empty-state" style="padding:16px">Sin datos</div>';
 
-    // FIX: chart sin await, datos ya disponibles en allConsumos
     requestAnimationFrame(() => {
         const canvas = gid('aliChart'); if (!canvas) return;
         destroyChart('ali');
@@ -1756,7 +1792,6 @@ async function renderSanidad(cont) {
             <div style="font-size:.78rem;color:#7a5f44">${descartes} descartes · Aves vivas: ${avesVivas}</div></div></div>`;
     }).join('') || '<div class="empty-state" style="padding:16px">Sin mortalidad</div>';
 }
-
 // ============================================================
 //  COSTOS — con categorías
 // ============================================================
@@ -2085,7 +2120,6 @@ async function renderGalpones(cont) {
         } catch(e) { showMsg('galMsg', e.message.includes('unique')?`El código "${codigo}" ya existe`:e.message,'error'); }
     };
 }
-
 // ============================================================
 //  REPORTES — FIX: queries paralelas, sin N+1
 // ============================================================
@@ -2161,7 +2195,7 @@ async function renderReportes(cont) {
         csv(c, `incubacion_${todayISO()}.csv`);
     };
 
-    // FIX: queries paralelas para el resumen — evita N+1
+    // Resumen general
     try {
         const [lotes, allProd, allCons, allSan, allCost, allVent] = await Promise.all([
             dbAllLotes(),
@@ -2228,7 +2262,6 @@ function initModals() {
         reader.readAsDataURL(file);
     };
 
-    // FIX: usar sola instancia de Supabase (_sb), no window.supabase
     const { data: { session } } = await _sb.auth.getSession();
 
     if (!session) {
@@ -2260,11 +2293,11 @@ function initModals() {
     gid('adminPage').classList.remove('hidden');
     await initAdminPage();
 
-    // FIX: listener para sesión expirada
     _sb.auth.onAuthStateChange(event => {
         if (event === 'SIGNED_OUT') location.reload();
     });
 })();
+
 </script>
 </body>
 </html>
