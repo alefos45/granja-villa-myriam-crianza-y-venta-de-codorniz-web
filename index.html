@@ -172,7 +172,7 @@ h1,h2,h3,h4,h5 { font-family: var(--font-head); }
           <span class="link-forgot" id="forgotPasswordLink">¿Olvidaste tu contraseña?</span>
         </div>
       </div>
-      <!-- Register Panel (solo para administradores) -->
+      <!-- Register Panel -->
       <div id="registerPanel" class="hidden">
         <div class="form-row c2">
           <div class="fg"><label>Nombre completo *</label><input type="text" id="regNombre" placeholder="Juan Pérez"></div>
@@ -263,10 +263,10 @@ h1,h2,h3,h4,h5 { font-family: var(--font-head); }
 
 <script>
 // ============================================================
-//  CONFIGURACIÓN SUPABASE (TU PROYECTO DE CRIANZA)
+//  CONFIGURACIÓN SUPABASE
 // ============================================================
 const SUPABASE_URL      = "https://dfzkhlclwdxrkokzbtra.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_9dkfwX7NGWw19ChZwMVF2A_cgQsdi8l";  // <-- ¡CAMBIA ESTO!
+const SUPABASE_ANON_KEY = "sb_publishable_9dkfwX7NGWw19ChZwMVF2A_cgQsdi8l"; // <-- OK
 
 window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -368,14 +368,13 @@ async function dbRegister(email, pass, ud) {
   });
   if (error) throw error;
   if (!data.user) throw new Error('No se pudo crear el usuario.');
-  // Guardar perfil en tabla usuarios con campos simplificados
   const { error: insertErr } = await window.supabase.from('usuarios').insert({
     user_id: data.user.id,
     nombre: ud.nombre,
     documento: ud.documento,
     edad: ud.edad,
     email: email,
-    es_admin: true   // Por defecto los registrados son administradores (solo uso interno)
+    es_admin: true
   });
   if (insertErr) throw new Error('Error al guardar perfil: ' + insertErr.message);
   return data.user;
@@ -528,7 +527,7 @@ function handleRecoveryToken() {
 }
 
 // ============================================================
-//  PÁGINA DE AUTENTICACIÓN (simplificada)
+//  PÁGINA DE AUTENTICACIÓN
 // ============================================================
 function initAuthPage() {
   const tL = document.getElementById('tabLoginBtn');
@@ -576,7 +575,7 @@ function initAuthPage() {
 }
 
 // ============================================================
-//  ADMIN PAGE (CRIANZA) - Las mismas funciones que antes
+//  ADMIN PAGE - FUNCIONES DE RENDERIZADO COMPLETAS
 // ============================================================
 async function initAdminPage() {
   document.getElementById('adminWelcome').textContent = 'Hola, ' + G.nombre;
@@ -611,14 +610,730 @@ async function initAdminPage() {
   renderFooter('footerAdmin');
 }
 
-// ---- Aquí van las mismas funciones de renderizado (dashboard, lotes, etc.)
-// Como son muy extensas, las incluyo abreviadas (puedes copiar las que ya tenías).
-// Por brevedad, pongo un esqueleto que puedes completar con el código anterior.
-// En la respuesta final te daré el código completo, pero aquí voy a poner las funciones completas.
-// ...
+async function renderAdminTab(tab) {
+  const cont = document.getElementById('atab-' + tab);
+  if (!cont) return;
+  if (tab === 'dashboard') await renderDashboard(cont);
+  else if (tab === 'lotes') await renderLotes(cont);
+  else if (tab === 'produccion') await renderProduccion(cont);
+  else if (tab === 'alimentacion') await renderAlimentacion(cont);
+  else if (tab === 'sanidad') await renderSanidad(cont);
+  else if (tab === 'costos') await renderCostos(cont);
+  else if (tab === 'inventario') await renderInventario(cont);
+  else if (tab === 'reportes') await renderReportes(cont);
+}
 
-// (Por razones de espacio, continúo en el siguiente mensaje con el resto del código)
-// Este es el final del script, pero en la respuesta final te daré el HTML completo.
+// ---------- DASHBOARD ----------
+async function renderDashboard(cont) {
+  cont.innerHTML = '<div class="loader"></div>';
+  try {
+    const lotes = await dbAllLotes();
+    const lotesActivos = lotes.filter(l => l.estado === 'activo');
+    let totalHuevosHoy = 0, totalAves = 0, totalMuertes = 0;
+    const hoy = new Date().toISOString().slice(0,10);
+    for (const lote of lotesActivos) {
+      const prods = await dbProduccionesByLote(lote.id);
+      const hoyProd = prods.find(p => p.fecha === hoy);
+      if (hoyProd) totalHuevosHoy += hoyProd.cantidad_huevos;
+      totalAves += lote.cantidad_inicial;
+      const sanitarios = await dbSanitariosByLote(lote.id);
+      const muertes = sanitarios.filter(s => s.tipo === 'muerte').reduce((sum, s) => sum + (s.cantidad || 0), 0);
+      totalMuertes += muertes;
+    }
+    const pctPostura = totalAves > 0 ? ((totalHuevosHoy / totalAves) * 100).toFixed(1) : 0;
+    cont.innerHTML = `
+      <div class="grid-4">
+        <div class="stat-card"><div class="stat-val">${lotesActivos.length}</div><div class="stat-label">Lotes activos</div></div>
+        <div class="stat-card"><div class="stat-val">${totalAves}</div><div class="stat-label">Aves en producción</div></div>
+        <div class="stat-card"><div class="stat-val">${totalHuevosHoy}</div><div class="stat-label">Huevos hoy</div></div>
+        <div class="stat-card"><div class="stat-val">${pctPostura}%</div><div class="stat-label">% Postura hoy</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Resumen de lotes activos</div>
+        <div id="dashboardLotesList"></div>
+      </div>
+      <div class="card"><div class="card-title">Producción últimos 7 días</div><canvas id="dashChart" height="120"></canvas></div>
+    `;
+    const list = document.getElementById('dashboardLotesList');
+    if (!lotesActivos.length) {
+      list.innerHTML = '<div class="cart-empty">No hay lotes activos</div>';
+    } else {
+      list.innerHTML = lotesActivos.map(l => {
+        const prod = G.producciones.filter(p => p.lote_id === l.id);
+        const avg = prod.length ? (prod.reduce((s,p) => s + p.cantidad_huevos, 0) / prod.length).toFixed(0) : 0;
+        return `<div class="order-card"><div><strong>${escHtml(l.nombre)}</strong> (${escHtml(l.codigo)}) - ${l.cantidad_inicial} aves</div>
+                <div>Producción promedio: ${avg} huevos/día - Edad: ${Math.floor((new Date() - new Date(l.fecha_ingreso)) / (1000*60*60*24))} días</div></div>`;
+      }).join('');
+    }
+    setTimeout(() => {
+      const canvas = document.getElementById('dashChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (G.charts.dash) G.charts.dash.destroy();
+      const fechas = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(); d.setDate(d.getDate() - i);
+        fechas.push(d.toISOString().slice(0,10));
+      }
+      const data = fechas.map(f => {
+        let total = 0;
+        for (const lote of lotesActivos) {
+          const prod = G.producciones.filter(p => p.lote_id === lote.id && p.fecha === f);
+          total += prod.reduce((s,p) => s + p.cantidad_huevos, 0);
+        }
+        return total;
+      });
+      if (data.some(v => v > 0)) {
+        G.charts.dash = new Chart(ctx, {
+          type: 'line',
+          data: { labels: fechas.map(d => fmtDateShort(d)), datasets: [{ label: 'Huevos diarios', data, borderColor: '#b8712a', fill: false }] },
+          options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }, 100);
+  } catch(e) {
+    cont.innerHTML = '<div class="alert alert-error">Error: ' + escHtml(e.message) + '</div>';
+  }
+}
+
+// ---------- LOTES ----------
+async function renderLotes(cont) {
+  cont.innerHTML = '<div class="loader"></div>';
+  try {
+    const lotes = await dbAllLotes();
+    G.lotes = lotes;
+    let rows = lotes.map(l => `
+      <tr>
+        <td><input id="lote_nom_${l.id}" value="${escAttr(l.nombre)}"></td>
+        <td>${escAttr(l.codigo)}</td>
+        <td>${fmtDateShort(l.fecha_ingreso)}</td>
+        <td>${l.cantidad_inicial}</td>
+        <td>${l.estado}</td>
+        <td>
+          <button class="btn btn-primary btn-sm" onclick="guardarLote('${l.id}')">Guardar</button>
+          <button class="btn btn-danger btn-sm" onclick="eliminarLote('${l.id}')">Eliminar</button>
+        </td>
+      </tr>
+    `).join('');
+    cont.innerHTML = `
+      <div class="card">
+        <div class="card-title">Registrar nuevo lote</div>
+        <div class="form-row c2">
+          <div class="fg"><label>Código único</label><input id="loteCodigo" placeholder="Ej: L2025-01"></div>
+          <div class="fg"><label>Nombre</label><input id="loteNombre" placeholder="Ej: Lote A"></div>
+        </div>
+        <div class="form-row c2">
+          <div class="fg"><label>Fecha ingreso</label><input type="date" id="loteFecha"></div>
+          <div class="fg"><label>Raza</label><input id="loteRaza" placeholder="Ej: Isa Brown"></div>
+        </div>
+        <div class="form-row c2">
+          <div class="fg"><label>Cantidad inicial</label><input type="number" id="loteCant" value="100"></div>
+          <div class="fg"><label>Procedencia</label><input id="loteProcedencia" placeholder="Ej: Incubadora propia"></div>
+        </div>
+        <button class="btn btn-primary" id="btnCrearLote">Crear lote</button>
+        <div id="loteMsg"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Lotes existentes</div>
+        <div class="data-table-wrap"><table class="data-table">
+          <thead><tr><th>Nombre</th><th>Código</th><th>Ingreso</th><th>Aves</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table></div>
+      </div>
+    `;
+    document.getElementById('btnCrearLote').onclick = async () => {
+      const codigo = document.getElementById('loteCodigo').value.trim();
+      const nombre = document.getElementById('loteNombre').value.trim();
+      const fecha = document.getElementById('loteFecha').value;
+      const raza = document.getElementById('loteRaza').value.trim();
+      const cantidad = parseInt(document.getElementById('loteCant').value);
+      const procedencia = document.getElementById('loteProcedencia').value.trim();
+      if (!codigo || !nombre || !fecha || !cantidad) {
+        showMsg('loteMsg', 'Código, nombre, fecha y cantidad son obligatorios', 'error');
+        return;
+      }
+      try {
+        await dbCreateLote({ codigo, nombre, fecha_ingreso: fecha, raza, cantidad_inicial: cantidad, procedencia, estado: 'activo' });
+        showMsg('loteMsg', 'Lote creado', 'success');
+        await renderAdminTab('lotes');
+      } catch(e) { showMsg('loteMsg', e.message, 'error'); }
+    };
+    window.guardarLote = async (id) => {
+      const nombre = document.getElementById('lote_nom_' + id).value.trim();
+      if (!nombre) { alert('El nombre no puede estar vacío'); return; }
+      await dbUpdateLote(id, { nombre });
+      await renderAdminTab('lotes');
+    };
+    window.eliminarLote = async (id) => {
+      if (!confirm('Eliminar este lote? Se perderán todos los datos asociados.')) return;
+      await dbDeleteLote(id);
+      await renderAdminTab('lotes');
+    };
+  } catch(e) {
+    cont.innerHTML = '<div class="alert alert-error">Error: ' + escHtml(e.message) + '</div>';
+  }
+}
+
+// ---------- PRODUCCIÓN ----------
+async function renderProduccion(cont) {
+  cont.innerHTML = '<div class="loader"></div>';
+  try {
+    const lotes = await dbAllLotes();
+    const lotesActivos = lotes.filter(l => l.estado === 'activo');
+    if (!lotesActivos.length) {
+      cont.innerHTML = '<div class="card"><div class="cart-empty">No hay lotes activos. Crea un lote primero.</div></div>';
+      return;
+    }
+    let options = lotesActivos.map(l => `<option value="${l.id}">${l.nombre} (${l.codigo})</option>`).join('');
+    cont.innerHTML = `
+      <div class="card">
+        <div class="card-title">Registrar producción diaria</div>
+        <div class="form-row c2">
+          <div class="fg"><label>Lote</label><select id="prodLote">${options}</select></div>
+          <div class="fg"><label>Fecha</label><input type="date" id="prodFecha" value="${new Date().toISOString().slice(0,10)}"></div>
+        </div>
+        <div class="form-row c2">
+          <div class="fg"><label>Cantidad de huevos</label><input type="number" id="prodCant" value="0"></div>
+          <div class="fg"><label>Clasificación</label>
+            <select id="prodClasif">
+              <option value="grandes">Grandes</option>
+              <option value="medianos">Medianos</option>
+              <option value="pequeños">Pequeños</option>
+              <option value="sucios">Sucios</option>
+              <option value="rotos">Rotos</option>
+              <option value="suelo">Suelo</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btnRegProd">Registrar producción</button>
+        <div id="prodMsg"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Últimas producciones</div>
+        <div id="prodList"></div>
+      </div>
+      <div class="card"><div class="card-title">Producción por lote (últimos 15 días)</div><canvas id="prodChart" height="120"></canvas></div>
+    `;
+    document.getElementById('btnRegProd').onclick = async () => {
+      const lote_id = document.getElementById('prodLote').value;
+      const fecha = document.getElementById('prodFecha').value;
+      const cantidad = parseInt(document.getElementById('prodCant').value);
+      const clasificacion = document.getElementById('prodClasif').value;
+      if (!lote_id || !fecha || isNaN(cantidad) || cantidad < 0) {
+        showMsg('prodMsg', 'Todos los campos son obligatorios y cantidad debe ser >= 0', 'error');
+        return;
+      }
+      try {
+        await dbCreateProduccion({ lote_id, fecha, cantidad_huevos: cantidad, clasificacion });
+        showMsg('prodMsg', 'Producción registrada', 'success');
+        await renderAdminTab('produccion');
+      } catch(e) { showMsg('prodMsg', e.message, 'error'); }
+    };
+    let allProds = [];
+    for (const l of lotesActivos) {
+      const prods = await dbProduccionesByLote(l.id);
+      allProds = allProds.concat(prods);
+    }
+    allProds.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+    const list = document.getElementById('prodList');
+    if (!allProds.length) {
+      list.innerHTML = '<div class="cart-empty">Sin registros</div>';
+    } else {
+      list.innerHTML = allProds.slice(0,30).map(p => `
+        <div class="order-card">
+          <div><strong>${escHtml(p.clasificacion || 'Sin clasif')}</strong> - ${p.cantidad_huevos} huevos</div>
+          <div class="order-date">Lote: ${lotes.find(l => l.id === p.lote_id)?.nombre || 'N/A'} - ${fmtDate(p.fecha)}</div>
+        </div>
+      `).join('');
+    }
+    setTimeout(() => {
+      const canvas = document.getElementById('prodChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (G.charts.prod) G.charts.prod.destroy();
+      const fechas = [];
+      for (let i = 14; i >= 0; i--) {
+        const d = new Date(); d.setDate(d.getDate() - i);
+        fechas.push(d.toISOString().slice(0,10));
+      }
+      const datasets = lotesActivos.map(l => {
+        const data = fechas.map(f => {
+          const p = allProds.filter(pp => pp.lote_id === l.id && pp.fecha === f);
+          return p.reduce((s, pp) => s + pp.cantidad_huevos, 0);
+        });
+        return { label: l.nombre, data, fill: false, borderColor: '#' + Math.floor(Math.random()*16777215).toString(16) };
+      });
+      if (datasets.some(d => d.data.some(v => v > 0))) {
+        G.charts.prod = new Chart(ctx, {
+          type: 'line',
+          data: { labels: fechas.map(f => fmtDateShort(f)), datasets },
+          options: { responsive: true }
+        });
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }, 100);
+  } catch(e) {
+    cont.innerHTML = '<div class="alert alert-error">Error: ' + escHtml(e.message) + '</div>';
+  }
+}
+
+// ---------- ALIMENTACIÓN ----------
+async function renderAlimentacion(cont) {
+  cont.innerHTML = '<div class="loader"></div>';
+  try {
+    const lotes = await dbAllLotes();
+    const lotesActivos = lotes.filter(l => l.estado === 'activo');
+    if (!lotesActivos.length) {
+      cont.innerHTML = '<div class="card"><div class="cart-empty">No hay lotes activos.</div></div>';
+      return;
+    }
+    let options = lotesActivos.map(l => `<option value="${l.id}">${l.nombre} (${l.codigo})</option>`).join('');
+    cont.innerHTML = `
+      <div class="card">
+        <div class="card-title">Registrar consumo de alimento</div>
+        <div class="form-row c2">
+          <div class="fg"><label>Lote</label><select id="aliLote">${options}</select></div>
+          <div class="fg"><label>Fecha</label><input type="date" id="aliFecha" value="${new Date().toISOString().slice(0,10)}"></div>
+        </div>
+        <div class="form-row c2">
+          <div class="fg"><label>Cantidad (kg)</label><input type="number" id="aliCant" step="0.1" value="0"></div>
+          <div class="fg"><label>Tipo de alimento</label><input id="aliTipo" placeholder="Ej: Iniciación, Levante, Postura"></div>
+        </div>
+        <button class="btn btn-primary" id="btnRegAli">Registrar consumo</button>
+        <div id="aliMsg"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Últimos consumos</div>
+        <div id="aliList"></div>
+      </div>
+      <div class="card"><div class="card-title">Conversión alimenticia (últimos 15 días)</div><canvas id="aliChart" height="120"></canvas></div>
+    `;
+    document.getElementById('btnRegAli').onclick = async () => {
+      const lote_id = document.getElementById('aliLote').value;
+      const fecha = document.getElementById('aliFecha').value;
+      const cantidad_kg = parseFloat(document.getElementById('aliCant').value);
+      const tipo_alimento = document.getElementById('aliTipo').value.trim();
+      if (!lote_id || !fecha || isNaN(cantidad_kg) || cantidad_kg <= 0 || !tipo_alimento) {
+        showMsg('aliMsg', 'Todos los campos son obligatorios', 'error');
+        return;
+      }
+      try {
+        await dbCreateConsumo({ lote_id, fecha, cantidad_kg, tipo_alimento });
+        showMsg('aliMsg', 'Consumo registrado', 'success');
+        await renderAdminTab('alimentacion');
+      } catch(e) { showMsg('aliMsg', e.message, 'error'); }
+    };
+    let allConsumos = [];
+    for (const l of lotesActivos) {
+      const cons = await dbConsumosByLote(l.id);
+      allConsumos = allConsumos.concat(cons);
+    }
+    allConsumos.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+    const list = document.getElementById('aliList');
+    if (!allConsumos.length) {
+      list.innerHTML = '<div class="cart-empty">Sin registros</div>';
+    } else {
+      list.innerHTML = allConsumos.slice(0,20).map(c => `
+        <div class="order-card">
+          <div><strong>${c.cantidad_kg} kg</strong> - ${escHtml(c.tipo_alimento)}</div>
+          <div class="order-date">Lote: ${lotes.find(l => l.id === c.lote_id)?.nombre || 'N/A'} - ${fmtDate(c.fecha)}</div>
+        </div>
+      `).join('');
+    }
+    setTimeout(async () => {
+      const canvas = document.getElementById('aliChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (G.charts.ali) G.charts.ali.destroy();
+      const fechas = [];
+      for (let i = 14; i >= 0; i--) {
+        const d = new Date(); d.setDate(d.getDate() - i);
+        fechas.push(d.toISOString().slice(0,10));
+      }
+      const datasets = [];
+      for (const l of lotesActivos) {
+        const data = [];
+        let totalAlimento = 0, totalHuevos = 0;
+        for (const f of fechas) {
+          const consumo = allConsumos.filter(c => c.lote_id === l.id && c.fecha === f);
+          const prod = await dbProduccionesByLote(l.id);
+          const prodDia = prod.filter(p => p.fecha === f);
+          totalAlimento += consumo.reduce((s, c) => s + c.cantidad_kg, 0);
+          totalHuevos += prodDia.reduce((s, p) => s + p.cantidad_huevos, 0);
+          if (totalHuevos > 0) {
+            data.push(totalAlimento / (totalHuevos / 12));
+          } else {
+            data.push(0);
+          }
+        }
+        datasets.push({ label: l.nombre, data, fill: false, borderColor: '#' + Math.floor(Math.random()*16777215).toString(16) });
+      }
+      if (datasets.some(d => d.data.some(v => v > 0))) {
+        G.charts.ali = new Chart(ctx, {
+          type: 'line',
+          data: { labels: fechas.map(f => fmtDateShort(f)), datasets },
+          options: { responsive: true, plugins: { legend: { position: 'top' } } }
+        });
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }, 200);
+  } catch(e) {
+    cont.innerHTML = '<div class="alert alert-error">Error: ' + escHtml(e.message) + '</div>';
+  }
+}
+
+// ---------- SANIDAD ----------
+async function renderSanidad(cont) {
+  cont.innerHTML = '<div class="loader"></div>';
+  try {
+    const lotes = await dbAllLotes();
+    const lotesActivos = lotes.filter(l => l.estado === 'activo');
+    if (!lotesActivos.length) {
+      cont.innerHTML = '<div class="card"><div class="cart-empty">No hay lotes activos.</div></div>';
+      return;
+    }
+    let options = lotesActivos.map(l => `<option value="${l.id}">${l.nombre} (${l.codigo})</option>`).join('');
+    cont.innerHTML = `
+      <div class="card">
+        <div class="card-title">Registrar evento sanitario</div>
+        <div class="form-row c2">
+          <div class="fg"><label>Lote</label><select id="sanLote">${options}</select></div>
+          <div class="fg"><label>Fecha</label><input type="date" id="sanFecha" value="${new Date().toISOString().slice(0,10)}"></div>
+        </div>
+        <div class="form-row c2">
+          <div class="fg"><label>Tipo</label>
+            <select id="sanTipo">
+              <option value="vacunacion">Vacunación</option>
+              <option value="medicamento">Medicamento</option>
+              <option value="muerte">Muerte</option>
+              <option value="descarte">Descarte</option>
+            </select>
+          </div>
+          <div class="fg"><label>Cantidad (solo para muerte/descarte)</label><input type="number" id="sanCant" value="0"></div>
+        </div>
+        <div class="fg"><label>Descripción</label><textarea id="sanDesc" rows="2" placeholder="Detalles del evento..."></textarea></div>
+        <button class="btn btn-primary" id="btnRegSan">Registrar evento</button>
+        <div id="sanMsg"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Últimos eventos sanitarios</div>
+        <div id="sanList"></div>
+      </div>
+    `;
+    document.getElementById('btnRegSan').onclick = async () => {
+      const lote_id = document.getElementById('sanLote').value;
+      const fecha = document.getElementById('sanFecha').value;
+      const tipo = document.getElementById('sanTipo').value;
+      const cantidad = parseInt(document.getElementById('sanCant').value) || 0;
+      const descripcion = document.getElementById('sanDesc').value.trim();
+      if (!lote_id || !fecha || !tipo) {
+        showMsg('sanMsg', 'Lote, fecha y tipo son obligatorios', 'error');
+        return;
+      }
+      try {
+        await dbCreateSanitario({ lote_id, fecha, tipo, cantidad, descripcion });
+        showMsg('sanMsg', 'Evento registrado', 'success');
+        await renderAdminTab('sanidad');
+      } catch(e) { showMsg('sanMsg', e.message, 'error'); }
+    };
+    let allSan = [];
+    for (const l of lotesActivos) {
+      const san = await dbSanitariosByLote(l.id);
+      allSan = allSan.concat(san);
+    }
+    allSan.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+    const list = document.getElementById('sanList');
+    if (!allSan.length) {
+      list.innerHTML = '<div class="cart-empty">Sin eventos</div>';
+    } else {
+      list.innerHTML = allSan.slice(0,20).map(s => `
+        <div class="order-card">
+          <div><strong>${escHtml(s.tipo)}</strong> ${s.cantidad ? ' - Cant: ' + s.cantidad : ''}</div>
+          <div>${escHtml(s.descripcion || '')}</div>
+          <div class="order-date">Lote: ${lotes.find(l => l.id === s.lote_id)?.nombre || 'N/A'} - ${fmtDate(s.fecha)}</div>
+        </div>
+      `).join('');
+    }
+  } catch(e) {
+    cont.innerHTML = '<div class="alert alert-error">Error: ' + escHtml(e.message) + '</div>';
+  }
+}
+
+// ---------- COSTOS ----------
+async function renderCostos(cont) {
+  cont.innerHTML = '<div class="loader"></div>';
+  try {
+    const lotes = await dbAllLotes();
+    const lotesActivos = lotes.filter(l => l.estado === 'activo');
+    if (!lotesActivos.length) {
+      cont.innerHTML = '<div class="card"><div class="cart-empty">No hay lotes activos.</div></div>';
+      return;
+    }
+    let options = lotesActivos.map(l => `<option value="${l.id}">${l.nombre} (${l.codigo})</option>`).join('');
+    cont.innerHTML = `
+      <div class="card">
+        <div class="card-title">Registrar costo</div>
+        <div class="form-row c2">
+          <div class="fg"><label>Lote</label><select id="cosLote">${options}</select></div>
+          <div class="fg"><label>Fecha</label><input type="date" id="cosFecha" value="${new Date().toISOString().slice(0,10)}"></div>
+        </div>
+        <div class="form-row c2">
+          <div class="fg"><label>Concepto</label><input id="cosConcepto" placeholder="Ej: Alimento, Medicinas, Mano de obra"></div>
+          <div class="fg"><label>Monto ($)</label><input type="number" id="cosMonto" step="0.01" value="0"></div>
+        </div>
+        <button class="btn btn-primary" id="btnRegCosto">Registrar costo</button>
+        <div id="cosMsg"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Últimos costos</div>
+        <div id="cosList"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Costo por huevo (por lote)</div>
+        <div id="costoHuevoList"></div>
+      </div>
+    `;
+    document.getElementById('btnRegCosto').onclick = async () => {
+      const lote_id = document.getElementById('cosLote').value;
+      const fecha = document.getElementById('cosFecha').value;
+      const concepto = document.getElementById('cosConcepto').value.trim();
+      const monto = parseFloat(document.getElementById('cosMonto').value);
+      if (!lote_id || !fecha || !concepto || isNaN(monto) || monto <= 0) {
+        showMsg('cosMsg', 'Todos los campos son obligatorios y monto > 0', 'error');
+        return;
+      }
+      try {
+        await dbCreateCosto({ lote_id, fecha, concepto, monto });
+        showMsg('cosMsg', 'Costo registrado', 'success');
+        await renderAdminTab('costos');
+      } catch(e) { showMsg('cosMsg', e.message, 'error'); }
+    };
+    let allCostos = [];
+    for (const l of lotesActivos) {
+      const c = await dbCostosByLote(l.id);
+      allCostos = allCostos.concat(c);
+    }
+    allCostos.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+    const list = document.getElementById('cosList');
+    if (!allCostos.length) {
+      list.innerHTML = '<div class="cart-empty">Sin costos</div>';
+    } else {
+      list.innerHTML = allCostos.slice(0,20).map(c => `
+        <div class="order-card">
+          <div><strong>${escHtml(c.concepto)}</strong> - ${pesos(c.monto)}</div>
+          <div class="order-date">Lote: ${lotes.find(l => l.id === c.lote_id)?.nombre || 'N/A'} - ${fmtDate(c.fecha)}</div>
+        </div>
+      `).join('');
+    }
+    const costoHuevoList = document.getElementById('costoHuevoList');
+    let html = '<div class="data-table-wrap"><table class="data-table"><thead><tr><th>Lote</th><th>Total costos</th><th>Huevos producidos</th><th>Costo por huevo</th></tr></thead><tbody>';
+    for (const l of lotesActivos) {
+      const costos = await dbCostosByLote(l.id);
+      const totalCostos = costos.reduce((s, c) => s + c.monto, 0);
+      const prods = await dbProduccionesByLote(l.id);
+      const totalHuevos = prods.reduce((s, p) => s + p.cantidad_huevos, 0);
+      const costoHuevo = totalHuevos > 0 ? totalCostos / totalHuevos : 0;
+      html += `<tr><td>${escHtml(l.nombre)}</td><td>${pesos(totalCostos)}</td><td>${totalHuevos}</td><td>${pesos(costoHuevo.toFixed(2))}</td></tr>`;
+    }
+    html += '</tbody></table></div>';
+    costoHuevoList.innerHTML = html;
+  } catch(e) {
+    cont.innerHTML = '<div class="alert alert-error">Error: ' + escHtml(e.message) + '</div>';
+  }
+}
+
+// ---------- INVENTARIO ----------
+async function renderInventario(cont) {
+  cont.innerHTML = '<div class="loader"></div>';
+  try {
+    const inventario = await dbInventarioAlimento();
+    cont.innerHTML = `
+      <div class="card">
+        <div class="card-title">Inventario de alimento</div>
+        <div id="invList"></div>
+        <div class="form-row c2" style="margin-top:1rem">
+          <div class="fg"><label>Tipo de alimento</label><input id="invTipo" placeholder="Ej: Postura"></div>
+          <div class="fg"><label>Stock (kg)</label><input type="number" id="invStock" step="0.1" value="0"></div>
+        </div>
+        <button class="btn btn-primary" id="btnInvActualizar">Actualizar stock</button>
+        <div id="invMsg"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Movimientos de inventario</div>
+        <div id="invMovimientos"></div>
+      </div>
+    `;
+    const list = document.getElementById('invList');
+    if (!inventario.length) {
+      list.innerHTML = '<div class="cart-empty">Sin registros de inventario</div>';
+    } else {
+      list.innerHTML = inventario.map(i => `
+        <div class="order-card">
+          <div><strong>${escHtml(i.tipo_alimento)}</strong> - ${i.stock_kg} kg</div>
+          <div class="order-date">Actualizado: ${fmtDate(i.fecha_actualizacion)}</div>
+        </div>
+      `).join('');
+    }
+    document.getElementById('btnInvActualizar').onclick = async () => {
+      const tipo = document.getElementById('invTipo').value.trim();
+      const stock = parseFloat(document.getElementById('invStock').value);
+      if (!tipo || isNaN(stock) || stock < 0) {
+        showMsg('invMsg', 'Tipo y stock válido son obligatorios', 'error');
+        return;
+      }
+      try {
+        await dbUpdateInventarioAlimento(tipo, stock);
+        await dbRegistrarMovimientoAlimento(tipo, stock, 'Actualización manual');
+        showMsg('invMsg', 'Inventario actualizado', 'success');
+        await renderAdminTab('inventario');
+      } catch(e) { showMsg('invMsg', e.message, 'error'); }
+    };
+    const { data: movs } = await window.supabase.from('movimientos_alimento').select('*').order('fecha', { ascending: false }).limit(20);
+    const movDiv = document.getElementById('invMovimientos');
+    if (!movs || !movs.length) {
+      movDiv.innerHTML = '<div class="cart-empty">Sin movimientos</div>';
+    } else {
+      movDiv.innerHTML = movs.map(m => `
+        <div class="order-card">
+          <div><strong>${escHtml(m.tipo_alimento)}</strong> - ${m.cantidad_kg} kg - ${m.motivo || 'N/A'}</div>
+          <div class="order-date">${fmtDate(m.fecha)}</div>
+        </div>
+      `).join('');
+    }
+  } catch(e) {
+    cont.innerHTML = '<div class="alert alert-error">Error: ' + escHtml(e.message) + '</div>';
+  }
+}
+
+// ---------- REPORTES ----------
+async function renderReportes(cont) {
+  cont.innerHTML = `
+    <div class="card">
+      <div class="card-title">Exportar datos</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.75rem">
+        <button class="btn btn-primary" id="expLotes">CSV Lotes</button>
+        <button class="btn btn-primary" id="expProduccion">CSV Producción</button>
+        <button class="btn btn-primary" id="expConsumos">CSV Consumos</button>
+        <button class="btn btn-primary" id="expSanidad">CSV Sanidad</button>
+        <button class="btn btn-primary" id="expCostos">CSV Costos</button>
+      </div>
+      <div id="reportMsg" class="mt-1"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Resumen general (últimos 30 días)</div>
+      <div id="resumenGeneral"></div>
+    </div>
+  `;
+  document.getElementById('expLotes').onclick = async () => {
+    const { data } = await window.supabase.from('lotes').select('*');
+    if (!data || !data.length) { alert('No hay datos'); return; }
+    let csv = 'Código,Nombre,Fecha ingreso,Procedencia,Raza,Cantidad,Estado\n';
+    data.forEach(l => { csv += `"${l.codigo}","${l.nombre}","${l.fecha_ingreso}","${l.procedencia||''}","${l.raza||''}",${l.cantidad_inicial},"${l.estado}"\n`; });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = 'lotes.csv'; a.click();
+  };
+  document.getElementById('expProduccion').onclick = async () => {
+    const { data } = await window.supabase.from('produccion_diaria').select('*');
+    if (!data || !data.length) { alert('No hay datos'); return; }
+    let csv = 'Lote,Fecha,Cantidad,Clasificación\n';
+    data.forEach(p => { csv += `"${p.lote_id}","${p.fecha}",${p.cantidad_huevos},"${p.clasificacion||''}"\n`; });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = 'produccion.csv'; a.click();
+  };
+  document.getElementById('expConsumos').onclick = async () => {
+    const { data } = await window.supabase.from('consumos_alimento').select('*');
+    if (!data || !data.length) { alert('No hay datos'); return; }
+    let csv = 'Lote,Fecha,Cantidad (kg),Tipo\n';
+    data.forEach(c => { csv += `"${c.lote_id}","${c.fecha}",${c.cantidad_kg},"${c.tipo_alimento}"\n`; });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = 'consumos.csv'; a.click();
+  };
+  document.getElementById('expSanidad').onclick = async () => {
+    const { data } = await window.supabase.from('eventos_sanitarios').select('*');
+    if (!data || !data.length) { alert('No hay datos'); return; }
+    let csv = 'Lote,Fecha,Tipo,Cantidad,Descripción\n';
+    data.forEach(s => { csv += `"${s.lote_id}","${s.fecha}","${s.tipo}",${s.cantidad||0},"${s.descripcion||''}"\n`; });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = 'sanidad.csv'; a.click();
+  };
+  document.getElementById('expCostos').onclick = async () => {
+    const { data } = await window.supabase.from('costos_lote').select('*');
+    if (!data || !data.length) { alert('No hay datos'); return; }
+    let csv = 'Lote,Fecha,Concepto,Monto\n';
+    data.forEach(c => { csv += `"${c.lote_id}","${c.fecha}","${c.concepto}",${c.monto}\n`; });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = 'costos.csv'; a.click();
+  };
+  try {
+    const lotes = await dbAllLotes();
+    const resumen = document.getElementById('resumenGeneral');
+    if (!lotes.length) {
+      resumen.innerHTML = '<div class="cart-empty">No hay datos</div>';
+    } else {
+      let html = '<div class="data-table-wrap"><table class="data-table"><thead><tr><th>Lote</th><th>Huevos (30d)</th><th>Consumo (kg)</th><th>Mortalidad</th><th>Costo total</th></tr></thead><tbody>';
+      for (const l of lotes) {
+        const prods = (await dbProduccionesByLote(l.id)).filter(p => new Date(p.fecha) >= new Date(Date.now() - 30*24*60*60*1000));
+        const totalHuevos = prods.reduce((s, p) => s + p.cantidad_huevos, 0);
+        const consumos = (await dbConsumosByLote(l.id)).filter(c => new Date(c.fecha) >= new Date(Date.now() - 30*24*60*60*1000));
+        const totalConsumo = consumos.reduce((s, c) => s + c.cantidad_kg, 0);
+        const sanitarios = await dbSanitariosByLote(l.id);
+        const muertes = sanitarios.filter(s => s.tipo === 'muerte').reduce((s, e) => s + (e.cantidad || 0), 0);
+        const costos = await dbCostosByLote(l.id);
+        const totalCostos = costos.reduce((s, c) => s + c.monto, 0);
+        html += `<tr><td>${escHtml(l.nombre)}</td><td>${totalHuevos}</td><td>${totalConsumo.toFixed(1)}</td><td>${muertes}</td><td>${pesos(totalCostos)}</td></tr>`;
+      }
+      html += '</tbody></table></div>';
+      resumen.innerHTML = html;
+    }
+  } catch(e) { console.error(e); }
+}
+
+// ============================================================
+//  BOOT
+// ============================================================
+(async function boot() {
+  handleRecoveryToken();
+  document.getElementById('logoFileInput').onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 3*1024*1024) { alert('El logo debe pesar menos de 3 MB.'); return; }
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const url = ev.target.result;
+      lsSet('granjaLogo', url);
+      setLogoEl(document.getElementById('adminTopLogo'));
+      updateAuthLogo();
+    };
+    reader.readAsDataURL(file);
+  };
+  const { data: { session } } = await window.supabase.auth.getSession();
+  if (!session) {
+    document.getElementById('authPage').style.display = '';
+    initAuthPage();
+    return;
+  }
+  try {
+    G.userId = session.user.id;
+    const profile = await dbProfile(G.userId);
+    G.esAdmin = profile.es_admin || false;
+    G.nombre = profile.nombre || 'Usuario';
+    G.email = profile.email || session.user.email || '';
+    if (!G.esAdmin) {
+      alert('Acceso restringido a administradores. Contacta al soporte.');
+      await window.supabase.auth.signOut();
+      location.reload();
+      return;
+    }
+  } catch(e) {
+    await window.supabase.auth.signOut();
+    document.getElementById('authPage').style.display = '';
+    initAuthPage();
+    showMsg('loginErr', 'Error al cargar perfil. Por favor inicia sesión nuevamente.', 'warn');
+    return;
+  }
+  document.getElementById('authPage').style.display = 'none';
+  document.getElementById('adminPage').classList.add('active');
+  await initAdminPage();
+})();
 </script>
 </body>
 </html>
