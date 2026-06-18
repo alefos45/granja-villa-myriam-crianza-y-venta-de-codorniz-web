@@ -1094,6 +1094,7 @@ async function initAdminPage() {
         { id:'costos',       label:'<i class="fas fa-coins"></i> Costos' },
         { id:'ventas',       label:'<i class="fas fa-store"></i> Ventas' },
         { id:'inventario',   label:'<i class="fas fa-boxes-stacked"></i> Inventario' },
+	{ id:'sacrificios',  label:'<i class="fas fa-drumstick-bite"></i> Carne' },
         { id:'galpones',     label:'<i class="fas fa-warehouse"></i> Galpones' },
         { id:'reportes',     label:'<i class="fas fa-chart-bar"></i> Reportes' }
     ];
@@ -1130,6 +1131,7 @@ async function renderAdminTab(tab) {
             case 'costos':       await renderCostos(cont); break;
             case 'ventas':       await renderVentas(cont); break;
             case 'inventario':   await renderInventario(cont); break;
+	    case 'sacrificios':  await renderSacrificios(cont); break;
             case 'galpones':     await renderGalpones(cont); break;
             case 'reportes':     await renderReportes(cont); break;
         }
@@ -2119,6 +2121,170 @@ async function renderGalpones(cont) {
             await renderAdminTab('galpones');
         } catch(e) { showMsg('galMsg', e.message.includes('unique')?`El código "${codigo}" ya existe`:e.message,'error'); }
     };
+}
+// ============================================================
+//  SACRIFICIOS / CARNE
+// ============================================================
+async function dbAllSacrificios() {
+    const r = await _sb.from('sacrificios').select('*, lotes(nombre, codigo)').order('fecha', { ascending: false });
+    if (r.error) throw r.error;
+    return r.data || [];
+}
+
+async function dbCreateSacrificio(s) {
+    const r = await _sb.from('sacrificios').insert(s);
+    if (r.error) throw r.error;
+}
+
+async function dbUpdateSacrificio(id, upd) {
+    const r = await _sb.from('sacrificios').update(upd).eq('id', Number(id));
+    if (r.error) throw r.error;
+}
+
+async function renderSacrificios(cont) {
+    cont.innerHTML = '<div class="loader">Cargando...</div>';
+    const [lotes, allSacrificios] = await Promise.all([dbAllLotes(), dbAllSacrificios()]);
+    const lotesActivos = lotes.filter(l => l.estado === 'activo');
+
+    window.marcarSacrificioPagado = async (id) => {
+        try {
+            await dbUpdateSacrificio(id, { estado: 'pagado' });
+            await renderAdminTab('sacrificios');
+        } catch (e) { alert('Error: ' + e.message); }
+    };
+
+    const opts = lotesActivos.map(l => `<option value="${l.id}">${escAttr(l.nombre)} (${escAttr(l.codigo)})</option>`).join('');
+
+    const totalAves = allSacrificios.reduce((s, i) => s + i.cantidad_aves, 0);
+    const totalKg = allSacrificios.reduce((s, i) => s + i.peso_total_kg, 0);
+    const totalIngresos = allSacrificios.filter(i => i.estado === 'pagado').reduce((s, i) => s + i.total_venta, 0);
+
+    cont.innerHTML = `
+        <div class="grid-3 mb-16">
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-drumstick-bite"></i></div>
+                <div class="stat-val">${totalAves}</div><div class="stat-label">Aves sacrificadas</div>
+                <div class="stat-sub">Total registros</div></div>
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-weight"></i></div>
+                <div class="stat-val">${totalKg.toFixed(1)} kg</div><div class="stat-label">Peso total</div>
+                <div class="stat-sub">Prom. ${totalAves > 0 ? (totalKg / totalAves * 1000).toFixed(0) : 0} g/ave</div></div>
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-coins"></i></div>
+                <div class="stat-val">${pesos(totalIngresos)}</div><div class="stat-label">Ingresos (pagados)</div>
+                <div class="stat-sub">${allSacrificios.filter(i => i.estado === 'pagado').length} ventas</div></div>
+        </div>
+
+        <div class="card"><div class="card-title"><i class="fas fa-plus-circle"></i> Registrar sacrificio / venta de carne</div>
+            <div class="grid-2 mb-16">
+                <div class="fg"><label>Lote de origen</label><select id="sacLote"><option value="">Sin lote</option>${opts}</select></div>
+                <div class="fg"><label>Fecha</label><input type="date" id="sacFecha" value="${todayISO()}"></div>
+            </div>
+            <div class="grid-2 mb-16">
+                <div class="fg"><label>Cantidad de aves *</label><input type="number" id="sacCantidad" min="1" value="1"></div>
+                <div class="fg"><label>Peso total (kg) *</label><input type="number" id="sacPeso" step="0.01" min="0.01" value="0.0"></div>
+            </div>
+            <div class="grid-2 mb-16">
+                <div class="fg"><label>Precio por kg ($) *</label><input type="number" id="sacPrecio" step="100" min="1" value="12000"></div>
+                <div class="fg"><label>Forma de pago</label><select id="sacPago">
+                    <option value="efectivo">Efectivo</option>
+                    <option value="nequi">Nequi</option>
+                    <option value="transferencia">Transferencia</option>
+                    <option value="credito">Crédito</option>
+                </select></div>
+            </div>
+            <div class="grid-2 mb-16">
+                <div class="fg"><label>Cliente *</label><input id="sacCliente" placeholder="Nombre del cliente"></div>
+                <div class="fg"><label>Documento</label><input id="sacDoc" placeholder="Cédula / NIT"></div>
+            </div>
+            <div class="grid-2 mb-16">
+                <div class="fg"><label>Teléfono</label><input id="sacTel" placeholder="300 000 0000"></div>
+                <div class="fg"><label>Estado</label><select id="sacEstado">
+                    <option value="pendiente">Pendiente</option>
+                    <option value="pagado">Pagado</option>
+                </select></div>
+            </div>
+            <div class="fg mb-16"><label>Observaciones</label><textarea id="sacObs" rows="2" placeholder="Peso promedio, calidad, destino..."></textarea></div>
+            <div id="sacPreview" style="background:#f8f3ec;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-weight:600;color:#b87a3a">Total venta: $0</div>
+            <button class="btn btn-primary" id="btnRegSacrificio"><i class="fas fa-save"></i> Registrar</button>
+            <div id="sacMsg"></div>
+        </div>
+
+        <div class="card"><div class="card-title"><i class="fas fa-list"></i> Historial de sacrificios</div>
+            <div class="data-table-wrap"><table class="data-table">
+                <thead><tr><th>Fecha</th><th>Lote</th><th>Aves</th><th>Peso (kg)</th><th>Prom. (g)</th><th>Precio/kg</th><th>Total</th><th>Cliente</th><th>Pago</th><th>Estado</th><th>Acción</th></tr></thead>
+                <tbody id="sacBody"></tbody>
+            </table></div>
+        </div>`;
+
+    const updatePreview = () => {
+        const peso = parseFloat(gid('sacPeso').value) || 0;
+        const precio = parseFloat(gid('sacPrecio').value) || 0;
+        gid('sacPreview').textContent = 'Total venta: ' + pesos(peso * precio);
+    };
+    gid('sacPeso').addEventListener('input', updatePreview);
+    gid('sacPrecio').addEventListener('input', updatePreview);
+
+    gid('btnRegSacrificio').onclick = async () => {
+        const lote_id = gid('sacLote').value || null;
+        const fecha = gid('sacFecha').value;
+        const cantidad = parseInt(gid('sacCantidad').value);
+        const peso = parseFloat(gid('sacPeso').value);
+        const precio = parseFloat(gid('sacPrecio').value);
+        const pago = gid('sacPago').value;
+        const cliente = gid('sacCliente').value.trim();
+        const doc = gid('sacDoc').value.trim() || null;
+        const tel = gid('sacTel').value.trim() || null;
+        const estado = gid('sacEstado').value;
+        const obs = gid('sacObs').value.trim() || null;
+
+        if (!fecha || !cantidad || !peso || !precio || !cliente) {
+            showMsg('sacMsg', 'Fecha, cantidad, peso, precio y cliente son obligatorios', 'error');
+            return;
+        }
+        if (peso <= 0 || precio <= 0 || cantidad <= 0) {
+            showMsg('sacMsg', 'Cantidad, peso y precio deben ser positivos', 'error');
+            return;
+        }
+
+        try {
+            await dbCreateSacrificio({
+                lote_id: lote_id ? parseInt(lote_id) : null,
+                fecha,
+                cantidad_aves: cantidad,
+                peso_total_kg: peso,
+                precio_kg: precio,
+                cliente_nombre: cliente,
+                cliente_doc: doc,
+                cliente_tel: tel,
+                forma_pago: pago,
+                estado,
+                observaciones: obs
+            });
+            showMsg('sacMsg', 'Sacrificio registrado correctamente', 'success');
+            await renderAdminTab('sacrificios');
+        } catch (e) { showMsg('sacMsg', e.message, 'error'); }
+    };
+
+    const tbody = gid('sacBody');
+    if (!allSacrificios.length) {
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:24px;color:#7a5f44">Sin registros de sacrificios</td></tr>';
+    } else {
+        tbody.innerHTML = allSacrificios.map(s => `
+            <tr>
+                <td>${fmtDateShort(s.fecha)}</td>
+                <td>${escHtml(s.lotes?.nombre || 'N/A')}</td>
+                <td>${s.cantidad_aves}</td>
+                <td>${s.peso_total_kg.toFixed(2)}</td>
+                <td>${s.peso_promedio_g?.toFixed(0) || '-'}</td>
+                <td>${pesos(s.precio_kg)}</td>
+                <td><strong>${pesos(s.total_venta)}</strong></td>
+                <td>${escHtml(s.cliente_nombre)}</td>
+                <td>${escHtml(s.forma_pago)}</td>
+                <td><span class="chip chip-${s.estado === 'pagado' ? 'green' : 'amber'}">${s.estado}</span></td>
+                <td>
+                    ${s.estado === 'pendiente' ? `<button class="btn btn-xs btn-success" onclick="marcarSacrificioPagado(${s.id})"><i class="fas fa-check"></i></button>` : ''}
+                </td>
+            </tr>
+        `).join('');
+    }
 }
 // ============================================================
 //  REPORTES — FIX: queries paralelas, sin N+1
